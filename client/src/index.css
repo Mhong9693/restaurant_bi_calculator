@@ -1,6 +1,43 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* LINE Seed Sans TH — Thin=100, Regular=400, Bold=700, Heavy=800, XBold=900 */
+@font-face {
+  font-family: 'LINE Seed Sans TH';
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+  src: url('/manus-storage/LINESeedSansTH_W_Th_1a53d7e5.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'LINE Seed Sans TH';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/manus-storage/LINESeedSansTH_W_Rg_7e660984.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'LINE Seed Sans TH';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/manus-storage/LINESeedSansTH_W_Bd_87d182db.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'LINE Seed Sans TH';
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+  src: url('/manus-storage/LINESeedSansTH_W_He_87511267.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'LINE Seed Sans TH';
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('/manus-storage/LINESeedSansTH_W_XBd_1ff2352b.woff2') format('woff2');
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -83,7 +120,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Sarabun', sans-serif;
+    font-family: 'LINE Seed Sans TH', 'IBM Plex Sans Thai', 'Noto Sans Thai', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

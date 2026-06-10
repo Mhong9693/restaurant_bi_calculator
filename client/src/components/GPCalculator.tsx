@@ -203,7 +203,10 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
             <p className="text-white font-bold text-base leading-tight">
               ยังไม่ได้สมัครโปรแกรม?
             </p>
-            <p className="text-[#0EC963] font-extrabold text-lg leading-tight">
+            <p
+              className="text-[#00E64D] font-black text-xl leading-tight tracking-tight"
+              style={{ fontFamily: "'LINE Seed Sans TH', sans-serif", fontWeight: 900 }}
+            >
               ไทยช่วยไทยพลัส
             </p>
             <p className="text-blue-200 text-xs mt-1">
