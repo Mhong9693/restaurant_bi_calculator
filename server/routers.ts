@@ -4,7 +4,12 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { notifyOwner } from "./_core/notification";
 import { appendLeadToSheet } from "./googleSheets";
-import { createLead, getLeadByPhone, getAllLeads, getMenuItemsBySession, createMenuItem, deleteMenuItem, clearMenuItemsBySession } from "./db";
+import {
+  createLead, getLeadByPhone, getAllLeads,
+  getMenuItemsBySession, createMenuItem, deleteMenuItem, clearMenuItemsBySession,
+  getGpSettings, upsertGpSettings,
+  upsertDailyLog, getDailyLogsBySession, getDailyLogByDate,
+} from "./db";
 import { z } from "zod";
 
 const leadSchema = z.object({
@@ -39,7 +44,6 @@ export const appRouter = router({
     submit: publicProcedure
       .input(leadSchema)
       .mutation(async ({ input }) => {
-        // Check if phone already registered
         const existing = await getLeadByPhone(input.phone);
         if (existing) {
           return { success: true, alreadyExists: true, message: "เบอร์โทรนี้ลงทะเบียนแล้ว" };
@@ -51,7 +55,6 @@ export const appRouter = router({
           foodCategory: input.foodCategory,
           pdpaConsent: input.pdpaConsent,
         });
-        // Sync to Google Sheets (non-fatal)
         try {
           await appendLeadToSheet({
             storeName: input.storeName,
@@ -63,7 +66,6 @@ export const appRouter = router({
         } catch (e) {
           console.warn("[GoogleSheets] Sync failed (non-fatal):", e);
         }
-        // Notify owner
         try {
           await notifyOwner({
             title: `🎉 Lead ใหม่: ${input.storeName}`,
@@ -127,6 +129,79 @@ export const appRouter = router({
       .input(z.object({ sessionId: z.string() }))
       .mutation(async ({ input }) => {
         await clearMenuItemsBySession(input.sessionId);
+        return { success: true };
+      }),
+  }),
+
+  gpSettings: router({
+    get: publicProcedure
+      .input(z.object({ sessionId: z.string() }))
+      .query(async ({ input }) => {
+        const s = await getGpSettings(input.sessionId);
+        if (!s) return null;
+        return {
+          ...s,
+          normalAvgPrice: Number(s.normalAvgPrice),
+          normalGpPercent: Number(s.normalGpPercent),
+          plusAvgPrice: Number(s.plusAvgPrice),
+          plusGpPercent: Number(s.plusGpPercent),
+        };
+      }),
+
+    save: publicProcedure
+      .input(z.object({
+        sessionId: z.string().min(1),
+        normalAvgPrice: z.number().min(0),
+        normalGpPercent: z.number().min(0).max(100),
+        plusAvgPrice: z.number().min(0),
+        plusGpPercent: z.number().min(0).max(100),
+      }))
+      .mutation(async ({ input }) => {
+        await upsertGpSettings({
+          sessionId: input.sessionId,
+          normalAvgPrice: String(input.normalAvgPrice),
+          normalGpPercent: String(input.normalGpPercent),
+          plusAvgPrice: String(input.plusAvgPrice),
+          plusGpPercent: String(input.plusGpPercent),
+        });
+        return { success: true };
+      }),
+  }),
+
+  dailyLogs: router({
+    getByDate: publicProcedure
+      .input(z.object({ sessionId: z.string(), logDate: z.string() }))
+      .query(async ({ input }) => {
+        const log = await getDailyLogByDate(input.sessionId, input.logDate);
+        if (!log) return null;
+        return { ...log, normalOrders: Number(log.normalOrders), plusOrders: Number(log.plusOrders) };
+      }),
+
+    getRange: publicProcedure
+      .input(z.object({
+        sessionId: z.string(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        const logs = await getDailyLogsBySession(input.sessionId, input.startDate, input.endDate);
+        return logs.map(l => ({ ...l, normalOrders: Number(l.normalOrders), plusOrders: Number(l.plusOrders) }));
+      }),
+
+    save: publicProcedure
+      .input(z.object({
+        sessionId: z.string().min(1),
+        logDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "รูปแบบวันที่ต้องเป็น YYYY-MM-DD"),
+        normalOrders: z.number().int().min(0),
+        plusOrders: z.number().int().min(0),
+      }))
+      .mutation(async ({ input }) => {
+        await upsertDailyLog({
+          sessionId: input.sessionId,
+          logDate: input.logDate,
+          normalOrders: input.normalOrders,
+          plusOrders: input.plusOrders,
+        });
         return { success: true };
       }),
   }),

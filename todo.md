@@ -40,3 +40,19 @@
 ## Testing
 - [x] Vitest: GP calculation logic tests (11 tests passing)
 - [x] Vitest: auth.logout router test (1 test passing)
+
+## GP Calculator Redesign + Daily Log + Monthly Summary
+
+- [x] Database: เพิ่ม table gpSettings (avgOrderPrice, gpPercent สำหรับทั้งสองช่องทาง)
+- [x] Database: เพิ่ม table dailyLogs (date, normalOrders, plusOrders, sessionId)
+- [x] GP Calculator: ปรับให้กรอกราคาขายเฉลี่ย + GP% แทน item-level
+- [x] GP Calculator: แสดงกำไรต่อออเดอร์แต่ละช่องทางทันที
+- [x] GP Calculator: แสดงผลต่างกำไรต่อออเดอร์ระหว่างสองช่องทาง
+- [x] Daily Log: หน้ากรอกออเดอร์รายวัน (ปกติ vs ไทยช่วยไทยพลัส)
+- [x] Daily Log: แสดงรายได้รวม + กำไรรวมแต่ละช่องทางต่อวัน
+- [x] Daily Log: แสดงสัดส่วน % ออเดอร์แต่ละประเภท
+- [x] Monthly Summary: กราฟ Trend 30 วัน (ออเดอร์แต่ละช่องทาง)
+- [x] Monthly Summary: Blended GP (กำไรเฉลี่ยรวมทุกออเดอร์)
+- [x] Monthly Summary: เปรียบเทียบกำไรรวม ปกติ vs ไทยช่วยไทยพลัส
+- [x] Monthly Summary: ยอดขายรวม + ต้นทุนรวมแต่ละช่องทาง
+- [x] Monthly Summary: คำนวณออเดอร์ไทยช่วยไทยพลัสที่ต้องได้เพื่อชดเชยออเดอร์ปกติ

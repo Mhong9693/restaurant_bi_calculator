@@ -43,3 +43,33 @@ export const menuItems = mysqlTable("menuItems", {
 
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertMenuItem = typeof menuItems.$inferInsert;
+
+// GP Settings per session — stores avg order price + GP% for both channels
+export const gpSettings = mysqlTable("gpSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 128 }).notNull().unique(),
+  // Normal channel
+  normalAvgPrice: decimal("normalAvgPrice", { precision: 10, scale: 2 }).notNull().default("0"),
+  normalGpPercent: decimal("normalGpPercent", { precision: 5, scale: 2 }).notNull().default("0"),
+  // LINE MAN Plus channel
+  plusAvgPrice: decimal("plusAvgPrice", { precision: 10, scale: 2 }).notNull().default("0"),
+  plusGpPercent: decimal("plusGpPercent", { precision: 5, scale: 2 }).notNull().default("0"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GpSettings = typeof gpSettings.$inferSelect;
+export type InsertGpSettings = typeof gpSettings.$inferInsert;
+
+// Daily order log — records orders per channel per day
+export const dailyLogs = mysqlTable("dailyLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 128 }).notNull(),
+  logDate: varchar("logDate", { length: 10 }).notNull(), // YYYY-MM-DD
+  normalOrders: int("normalOrders").notNull().default(0),
+  plusOrders: int("plusOrders").notNull().default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DailyLog = typeof dailyLogs.$inferSelect;
+export type InsertDailyLog = typeof dailyLogs.$inferInsert;

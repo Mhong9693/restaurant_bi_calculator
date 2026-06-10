@@ -4,127 +4,146 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from "recharts";
-import { calculateGP } from "@shared/gpCalculations";
 import { getMarginStatus, StatusBadge } from "./StatusBadge";
-import { InfoTooltip, TOOLTIPS } from "./InfoTooltip";
-import { TrendingUp, DollarSign, Package, BarChart2 } from "lucide-react";
+import { InfoTooltip } from "./InfoTooltip";
+import { TrendingUp, DollarSign, BarChart2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DashboardProps {
-  sellingPrice: number;
-  foodCost: number;
-  packagingCost: number;
-  otherCost: number;
-  restaurantDiscount: number;
-  deliverySubsidy: number;
+  normalAvgPrice: number;
+  normalGpPercent: number;
+  plusAvgPrice: number;
+  plusGpPercent: number;
+  normalGpPerOrder: number;
+  plusGpPerOrder: number;
 }
 
 const COLORS = {
-  profit: "#0baa54",
-  profitThaiPlus: "#0EC963",
+  profit: "#0aaa54",
+  profitPlus: "#0EC963",
   cost: "#f59e0b",
   commission: "#6b7280",
-  delivery: "#3b82f6",
 };
 
-export function StoreDashboard(props: DashboardProps) {
-  const result = useMemo(() => calculateGP(props), [props]);
+export function StoreDashboard({
+  normalAvgPrice,
+  normalGpPercent,
+  plusAvgPrice,
+  plusGpPercent,
+  normalGpPerOrder,
+  plusGpPerOrder,
+}: DashboardProps) {
 
-  const barData = [
+  const normalCostPerOrder = normalAvgPrice - normalGpPerOrder;
+  const plusCostPerOrder = plusAvgPrice - plusGpPerOrder;
+  const diffGp = plusGpPerOrder - normalGpPerOrder;
+  const diffPercent = plusGpPercent - normalGpPercent;
+
+  const barData = useMemo(() => [
     {
-      name: "ปกติ (30%)",
-      "กำไร GP": Math.max(0, result.grossProfit),
-      "ต้นทุนรวม": result.totalVariableCost,
-      "ค่า Commission": props.sellingPrice * 0.30 * 1.07,
+      name: "ออเดอร์ปกติ",
+      "กำไร GP": Math.round(normalGpPerOrder),
+      "ต้นทุน": Math.round(normalCostPerOrder),
     },
     {
-      name: "LINE MAN โปรแกรมพิเศษ (23%)",
-      "กำไร GP": Math.max(0, result.grossProfitThaiPlus),
-      "ต้นทุนรวม": result.totalVariableCost,
-      "ค่า Commission": props.sellingPrice * 0.23 * 1.07,
+      name: "ไทยช่วยไทยพลัส",
+      "กำไร GP": Math.round(plusGpPerOrder),
+      "ต้นทุน": Math.round(plusCostPerOrder),
     },
-  ];
+  ], [normalGpPerOrder, plusGpPerOrder, normalCostPerOrder, plusCostPerOrder]);
 
-  const pieDataNormal = [
-    { name: "กำไร GP", value: Math.max(0, result.grossProfit), color: COLORS.profit },
-    { name: "ต้นทุนวัตถุดิบ", value: props.foodCost, color: COLORS.cost },
-    { name: "บรรจุภัณฑ์", value: props.packagingCost, color: "#f97316" },
-    { name: "ค่า Commission", value: props.sellingPrice * 0.30 * 1.07, color: COLORS.commission },
-    { name: "อื่นๆ", value: props.otherCost + props.deliverySubsidy, color: COLORS.delivery },
-  ].filter((d) => d.value > 0);
+  const normalPieData = useMemo(() => [
+    { name: "กำไร GP", value: Math.round(normalGpPerOrder), color: COLORS.profit },
+    { name: "ต้นทุน", value: Math.round(normalCostPerOrder), color: COLORS.cost },
+  ], [normalGpPerOrder, normalCostPerOrder]);
 
-  const pieDataThaiPlus = [
-    { name: "กำไร GP", value: Math.max(0, result.grossProfitThaiPlus), color: COLORS.profitThaiPlus },
-    { name: "ต้นทุนวัตถุดิบ", value: props.foodCost, color: COLORS.cost },
-    { name: "บรรจุภัณฑ์", value: props.packagingCost, color: "#f97316" },
-    { name: "ค่า Commission", value: props.sellingPrice * 0.23 * 1.07, color: COLORS.commission },
-    { name: "อื่นๆ", value: props.otherCost + props.deliverySubsidy, color: COLORS.delivery },
-  ].filter((d) => d.value > 0);
+  const plusPieData = useMemo(() => [
+    { name: "กำไร GP", value: Math.round(plusGpPerOrder), color: COLORS.profitPlus },
+    { name: "ต้นทุน", value: Math.round(plusCostPerOrder), color: COLORS.cost },
+  ], [plusGpPerOrder, plusCostPerOrder]);
 
-  const statusNormal = getMarginStatus(result.gpMargin);
-  const statusThaiPlus = getMarginStatus(result.gpMarginThaiPlus);
-
-  const formatBaht = (v: number) => `฿${v.toFixed(0)}`;
+  const normalStatus = getMarginStatus(normalGpPercent);
+  const plusStatus = getMarginStatus(plusGpPercent);
 
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KPICard
-          icon={<DollarSign className="w-4 h-4" />}
-          label="ราคาขาย"
-          value={`฿${props.sellingPrice}`}
-          sub="ต่อออเดอร์"
-          color="blue"
-        />
-        <KPICard
-          icon={<Package className="w-4 h-4" />}
-          label="ต้นทุนรวม"
-          value={`฿${result.totalVariableCost.toFixed(0)}`}
-          sub={`${((result.totalVariableCost / props.sellingPrice) * 100).toFixed(0)}% ของราคาขาย`}
-          color="orange"
-        />
-        <KPICard
-          icon={<TrendingUp className="w-4 h-4" />}
-          label="GP ปกติ"
-          value={`${result.gpMargin.toFixed(1)}%`}
-          sub={`฿${result.grossProfit.toFixed(0)}`}
-          color={statusNormal === "healthy" ? "green" : statusNormal === "warning" ? "yellow" : "red"}
-          badge={<StatusBadge status={statusNormal} />}
-        />
-        <KPICard
-          icon={<TrendingUp className="w-4 h-4" />}
-          label="GP LINE MAN โปรพิเศษ"
-          value={`${result.gpMarginThaiPlus.toFixed(1)}%`}
-          sub={`฿${result.grossProfitThaiPlus.toFixed(0)}`}
-          color={statusThaiPlus === "healthy" ? "green" : statusThaiPlus === "warning" ? "yellow" : "red"}
-          badge={<StatusBadge status={statusThaiPlus} />}
-        />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="border-gray-200">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-xs text-gray-500">กำไร/ออเดอร์ปกติ</p>
+              <StatusBadge status={normalStatus} />
+            </div>
+            <p className="text-2xl font-bold text-gray-800 num">฿{normalGpPerOrder.toFixed(2)}</p>
+            <p className="text-xs text-gray-500 mt-1">GP {normalGpPercent.toFixed(1)}%</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-[#0EC963]/40 bg-green-50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-xs text-[#0aaa54]">กำไร/ออเดอร์พลัส</p>
+              <StatusBadge status={plusStatus} />
+            </div>
+            <p className="text-2xl font-bold text-[#0EC963] num">฿{plusGpPerOrder.toFixed(2)}</p>
+            <p className="text-xs text-[#0aaa54] mt-1">GP {plusGpPercent.toFixed(1)}%</p>
+          </CardContent>
+        </Card>
+
+        <Card className={cn("border-2", diffGp >= 0 ? "border-[#0EC963]/40 bg-green-50" : "border-red-200 bg-red-50")}>
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-xs text-gray-500">ผลต่างกำไร/ออเดอร์</p>
+              <TrendingUp className={cn("w-4 h-4", diffGp >= 0 ? "text-[#0EC963]" : "text-red-500")} />
+            </div>
+            <p className={cn("text-2xl font-bold num", diffGp >= 0 ? "text-[#0EC963]" : "text-red-600")}>
+              {diffGp >= 0 ? "+" : ""}฿{diffGp.toFixed(2)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {diffPercent >= 0 ? "+" : ""}{diffPercent.toFixed(1)}% GP Margin
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-gray-200">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-xs text-gray-500">
+                กำไรเพิ่ม 100 ออเดอร์พลัส
+                <InfoTooltip content="ถ้าออเดอร์ 100 ออเดอร์เป็นไทยช่วยไทยพลัสทั้งหมด คุณจะได้กำไรเพิ่มขึ้นเท่าไหร่" />
+              </p>
+              <DollarSign className="w-4 h-4 text-[#0EC963]" />
+            </div>
+            <p className="text-2xl font-bold text-[#0EC963] num">
+              ฿{(diffGp * 100).toFixed(0)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">ต่อ 100 ออเดอร์</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Bar Chart */}
-      <Card className="border-green-100">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-base text-green-800">
-            <BarChart2 className="w-5 h-5 text-green-600" />
-            เปรียบเทียบกำไรและต้นทุน
-            <InfoTooltip content="กราฟแสดงการเปรียบเทียบกำไร GP, ต้นทุนรวม และค่า Commission ระหว่าง Commission ปกติ กับ LINE MAN โปรแกรมพิเศษ" />
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2 text-gray-800">
+            <BarChart2 className="w-5 h-5 text-[#0EC963]" />
+            เปรียบเทียบกำไรและต้นทุนต่อออเดอร์
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={barData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0fdf4" />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#6b7280" }} />
-              <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} tickFormatter={formatBaht} />
+            <BarChart data={barData} margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `฿${v}`} />
               <ReTooltip
-                formatter={(v: number, name: string) => [`฿${v.toFixed(2)}`, name]}
-                contentStyle={{ borderRadius: 8, border: "1px solid #d1fae5", fontSize: 12 }}
+                formatter={(value: number, name: string) => [`฿${value}`, name]}
+                contentStyle={{ fontSize: 12, borderRadius: 8 }}
               />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="กำไร GP" fill={COLORS.profit} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="ต้นทุนรวม" fill={COLORS.cost} radius={[4, 4, 0, 0]} />
-              <Bar dataKey="ค่า Commission" fill={COLORS.commission} radius={[4, 4, 0, 0]} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Bar dataKey="กำไร GP" fill={COLORS.profitPlus} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="ต้นทุน" fill={COLORS.cost} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -132,96 +151,42 @@ export function StoreDashboard(props: DashboardProps) {
 
       {/* Donut Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DonutCard title="สัดส่วนต้นทุน (ปกติ 30%)" data={pieDataNormal} sellingPrice={props.sellingPrice} />
-        <DonutCard title="สัดส่วนต้นทุน (LINE MAN โปรพิเศษ 23%)" data={pieDataThaiPlus} sellingPrice={props.sellingPrice} highlight />
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-gray-700">สัดส่วนต้นทุน — ออเดอร์ปกติ</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie data={normalPieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                  {normalPieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <ReTooltip formatter={(v: number) => [`฿${v}`, ""]} contentStyle={{ fontSize: 11, borderRadius: 8 }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <p className="text-center text-xs text-gray-500 mt-1">ราคาขายเฉลี่ย ฿{normalAvgPrice}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-[#0EC963]/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-[#0aaa54]">สัดส่วนต้นทุน — ไทยช่วยไทยพลัส</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie data={plusPieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                  {plusPieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <ReTooltip formatter={(v: number) => [`฿${v}`, ""]} contentStyle={{ fontSize: 11, borderRadius: 8 }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <p className="text-center text-xs text-[#0aaa54] mt-1">ราคาขายเฉลี่ย ฿{plusAvgPrice}</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  );
-}
-
-function KPICard({
-  icon, label, value, sub, color, badge,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  sub: string;
-  color: "green" | "blue" | "orange" | "yellow" | "red";
-  badge?: React.ReactNode;
-}) {
-  const colorMap = {
-    green: "bg-green-50 text-green-700 border-green-200",
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
-    orange: "bg-orange-50 text-orange-700 border-orange-200",
-    yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    red: "bg-red-50 text-red-700 border-red-200",
-  };
-  const iconColorMap = {
-    green: "text-green-500",
-    blue: "text-blue-500",
-    orange: "text-orange-500",
-    yellow: "text-yellow-500",
-    red: "text-red-500",
-  };
-  return (
-    <div className={cn("rounded-xl border p-3 space-y-1", colorMap[color])}>
-      <div className={cn("flex items-center gap-1.5 text-xs font-medium opacity-70", iconColorMap[color])}>
-        {icon}
-        {label}
-      </div>
-      <p className="text-xl font-bold num">{value}</p>
-      <p className="text-xs opacity-60">{sub}</p>
-      {badge && <div className="mt-1">{badge}</div>}
-    </div>
-  );
-}
-
-function DonutCard({
-  title, data, sellingPrice, highlight,
-}: {
-  title: string;
-  data: { name: string; value: number; color: string }[];
-  sellingPrice: number;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className={cn("border", highlight ? "border-green-200 bg-green-50/30" : "border-gray-200")}>
-      <CardHeader className="pb-2">
-        <CardTitle className={cn("text-sm font-semibold", highlight ? "text-green-700" : "text-gray-600")}>
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={55}
-              outerRadius={80}
-              paddingAngle={2}
-              dataKey="value"
-            >
-              {data.map((entry, i) => (
-                <Cell key={i} fill={entry.color} />
-              ))}
-            </Pie>
-            <ReTooltip
-              formatter={(v: number, name: string) => [
-                `฿${v.toFixed(2)} (${((v / sellingPrice) * 100).toFixed(1)}%)`,
-                name,
-              ]}
-              contentStyle={{ borderRadius: 8, fontSize: 12 }}
-            />
-            <Legend
-              iconType="circle"
-              iconSize={8}
-              wrapperStyle={{ fontSize: 11 }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
   );
 }

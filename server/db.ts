@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, leads, InsertLead, menuItems, InsertMenuItem } from "../drizzle/schema";
+import { InsertUser, users, leads, InsertLead, menuItems, InsertMenuItem, gpSettings, InsertGpSettings, dailyLogs, InsertDailyLog } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -97,4 +97,68 @@ export async function clearMenuItemsBySession(sessionId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(menuItems).where(eq(menuItems.sessionId, sessionId));
+}
+
+// GP Settings helpers
+export async function getGpSettings(sessionId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(gpSettings).where(eq(gpSettings.sessionId, sessionId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertGpSettings(settings: InsertGpSettings) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(gpSettings).values(settings).onDuplicateKeyUpdate({
+    set: {
+      normalAvgPrice: settings.normalAvgPrice,
+      normalGpPercent: settings.normalGpPercent,
+      plusAvgPrice: settings.plusAvgPrice,
+      plusGpPercent: settings.plusGpPercent,
+    },
+  });
+}
+
+// Daily Log helpers
+export async function upsertDailyLog(log: InsertDailyLog) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Check if exists for this session+date
+  const existing = await db.select().from(dailyLogs)
+    .where(and(eq(dailyLogs.sessionId, log.sessionId), eq(dailyLogs.logDate, log.logDate as string)))
+    .limit(1);
+  if (existing.length > 0) {
+    await db.update(dailyLogs)
+      .set({ normalOrders: log.normalOrders, plusOrders: log.plusOrders })
+      .where(and(eq(dailyLogs.sessionId, log.sessionId), eq(dailyLogs.logDate, log.logDate as string)));
+  } else {
+    await db.insert(dailyLogs).values(log);
+  }
+}
+
+export async function getDailyLogsBySession(sessionId: string, startDate?: string, endDate?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  if (startDate && endDate) {
+    return db.select().from(dailyLogs)
+      .where(and(
+        eq(dailyLogs.sessionId, sessionId),
+        gte(dailyLogs.logDate, startDate),
+        lte(dailyLogs.logDate, endDate)
+      ))
+      .orderBy(dailyLogs.logDate);
+  }
+  return db.select().from(dailyLogs)
+    .where(eq(dailyLogs.sessionId, sessionId))
+    .orderBy(dailyLogs.logDate);
+}
+
+export async function getDailyLogByDate(sessionId: string, logDate: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(dailyLogs)
+    .where(and(eq(dailyLogs.sessionId, sessionId), eq(dailyLogs.logDate, logDate)))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
 }

@@ -15,6 +15,13 @@
       "when": 1781084166943,
       "tag": "0001_stale_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1781087098367,
+      "tag": "0002_polite_korvac",
+      "breakpoints": true
     }
   ]
 }

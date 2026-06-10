@@ -1,316 +1,331 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { InfoTooltip, TOOLTIPS } from "./InfoTooltip";
-import { StatusBadge, getStatusColor, getStatusBg, getMarginStatus } from "./StatusBadge";
-import { calculateGP, GRAB_NORMAL_COMMISSION, GRAB_THAI_PLUS_COMMISSION } from "@shared/gpCalculations";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { InfoTooltip } from "./InfoTooltip";
+import { StatusBadge, getMarginStatus } from "./StatusBadge";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { Save, TrendingUp, TrendingDown, Minus, Calculator, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Calculator, TrendingUp, Package, Tag, Truck, Percent } from "lucide-react";
 
-function NumInput({
-  label,
-  value,
-  onChange,
-  icon,
-  tooltip,
-  placeholder,
-  prefix = "฿",
-  suffix,
-  min = 0,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  icon?: React.ReactNode;
-  tooltip?: string;
-  placeholder?: string;
-  prefix?: string;
-  suffix?: string;
-  min?: number;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-        {icon}
-        {label}
-        {tooltip && <InfoTooltip content={tooltip} />}
-      </Label>
-      <div className="relative">
-        {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium pointer-events-none">
-            {prefix}
-          </span>
-        )}
-        <Input
-          type="number"
-          min={min}
-          step="1"
-          placeholder={placeholder ?? "0"}
-          value={value === 0 ? "" : value}
-          onChange={(e) => onChange(Math.max(min, Number(e.target.value) || 0))}
-          className={cn("text-right pr-10 font-mono", prefix ? "pl-8" : "")}
-        />
-        {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">
-            {suffix}
-          </span>
-        )}
-      </div>
-    </div>
-  );
+export interface GPSettings {
+  normalAvgPrice: number;
+  normalGpPercent: number;
+  plusAvgPrice: number;
+  plusGpPercent: number;
 }
 
-function ResultCard({
-  label,
-  value,
-  isPercent,
-  status,
-  highlight,
-  tooltip,
-}: {
-  label: string;
-  value: number;
-  isPercent?: boolean;
-  status?: "healthy" | "warning" | "danger";
-  highlight?: boolean;
-  tooltip?: string;
-}) {
-  const colorClass = status ? getStatusColor(status) : "text-gray-800";
-  const bgClass = status ? getStatusBg(status) : "bg-gray-50 border-gray-200";
-
-  return (
-    <div className={cn("rounded-xl border p-3 transition-all duration-300", bgClass, highlight && "shadow-sm")}>
-      <div className="flex items-center gap-1 mb-1">
-        <p className="text-xs text-gray-500 font-medium">{label}</p>
-        {tooltip && <InfoTooltip content={tooltip} />}
-      </div>
-      <p className={cn("text-xl font-bold num", colorClass)}>
-        {isPercent
-          ? `${value.toFixed(1)}%`
-          : `฿${value.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-      </p>
-      {status && <StatusBadge status={status} className="mt-1" />}
-    </div>
-  );
+export interface GPResults {
+  normalGpPerOrder: number;
+  plusGpPerOrder: number;
+  diffPerOrder: number;
+  diffPercent: number;
 }
 
 interface GPCalculatorProps {
-  onInputsChange?: (inputs: {
-    sellingPrice: number;
-    foodCost: number;
-    packagingCost: number;
-    otherCost: number;
-    restaurantDiscount: number;
-    deliverySubsidy: number;
-  }) => void;
+  sessionId: string;
+  onSettingsChange?: (settings: GPSettings, results: GPResults) => void;
 }
 
-export function GPCalculator({ onInputsChange }: GPCalculatorProps = {}) {
-  const [inputs, setInputs] = useState({
-    sellingPrice: 100,
-    foodCost: 25,
-    packagingCost: 5,
-    otherCost: 0,
-    restaurantDiscount: 0,
-    deliverySubsidy: 0,
+function calcGP(avgPrice: number, gpPercent: number): number {
+  return avgPrice * (gpPercent / 100);
+}
+
+export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps) {
+  const [inputs, setInputs] = useState<GPSettings>({
+    normalAvgPrice: 150,
+    normalGpPercent: 65,
+    plusAvgPrice: 150,
+    plusGpPercent: 72,
   });
-  const [targetMargin, setTargetMargin] = useState(30);
+  const [isSaved, setIsSaved] = useState(false);
 
-  const set = useCallback((key: keyof typeof inputs) => (v: number) => {
-    setInputs((prev) => {
-      const next = { ...prev, [key]: v };
-      onInputsChange?.(next);
-      return next;
-    });
-  }, [onInputsChange]);
+  const { data: savedSettings } = trpc.gpSettings.get.useQuery(
+    { sessionId },
+    { enabled: !!sessionId }
+  );
+  const saveMutation = trpc.gpSettings.save.useMutation();
 
-  const result = calculateGP(inputs);
-  const recommendedPrice = result.recommendedPrice(targetMargin);
+  useEffect(() => {
+    if (savedSettings) {
+      setInputs({
+        normalAvgPrice: savedSettings.normalAvgPrice,
+        normalGpPercent: savedSettings.normalGpPercent,
+        plusAvgPrice: savedSettings.plusAvgPrice,
+        plusGpPercent: savedSettings.plusGpPercent,
+      });
+      setIsSaved(true);
+    }
+  }, [savedSettings]);
+
+  const results: GPResults = {
+    normalGpPerOrder: calcGP(inputs.normalAvgPrice, inputs.normalGpPercent),
+    plusGpPerOrder: calcGP(inputs.plusAvgPrice, inputs.plusGpPercent),
+    diffPerOrder:
+      calcGP(inputs.plusAvgPrice, inputs.plusGpPercent) -
+      calcGP(inputs.normalAvgPrice, inputs.normalGpPercent),
+    diffPercent: inputs.plusGpPercent - inputs.normalGpPercent,
+  };
+
+  const handleChange = useCallback((field: keyof GPSettings, value: string) => {
+    const num = parseFloat(value) || 0;
+    setInputs((prev) => ({ ...prev, [field]: num }));
+    setIsSaved(false);
+  }, []);
+
+  useEffect(() => {
+    onSettingsChange?.(inputs, results);
+  }, [inputs]);
+
+  const handleSave = async () => {
+    try {
+      await saveMutation.mutateAsync({ sessionId, ...inputs });
+      setIsSaved(true);
+      toast.success("บันทึกการตั้งค่า GP สำเร็จ");
+    } catch {
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  };
+
+  const normalStatus = getMarginStatus(inputs.normalGpPercent);
+  const plusStatus = getMarginStatus(inputs.plusGpPercent);
 
   return (
     <div className="space-y-6">
-      {/* Input Section */}
-      <Card className="border-green-100 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base text-green-800">
-            <Calculator className="w-5 h-5 text-green-600" />
-            ข้อมูลเมนู
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <NumInput
-            label="ราคาขาย"
-            value={inputs.sellingPrice}
-            onChange={set("sellingPrice")}
-            icon={<Tag className="w-3.5 h-3.5 text-green-600" />}
-            tooltip="ราคาที่ลูกค้าจ่ายบน LINE MAN"
-            placeholder="100"
-          />
-          <NumInput
-            label="ต้นทุนวัตถุดิบ"
-            value={inputs.foodCost}
-            onChange={set("foodCost")}
-            icon={<Package className="w-3.5 h-3.5 text-green-600" />}
-            tooltip={TOOLTIPS.foodCost}
-            placeholder="25"
-          />
-          <NumInput
-            label="ค่าบรรจุภัณฑ์"
-            value={inputs.packagingCost}
-            onChange={set("packagingCost")}
-            icon={<Package className="w-3.5 h-3.5 text-green-600" />}
-            tooltip="ค่ากล่อง ถุง ช้อน ส้อม และอุปกรณ์บรรจุภัณฑ์"
-            placeholder="5"
-          />
-          <NumInput
-            label="ต้นทุนอื่นๆ ต่อออเดอร์"
-            value={inputs.otherCost}
-            onChange={set("otherCost")}
-            icon={<Package className="w-3.5 h-3.5 text-green-600" />}
-            tooltip="ต้นทุนอื่นๆ ที่เกิดขึ้นต่อออเดอร์ เช่น ค่าแก๊ส ค่าน้ำ"
-            placeholder="0"
-          />
-          <NumInput
-            label="ส่วนลดที่ร้านออก"
-            value={inputs.restaurantDiscount}
-            onChange={set("restaurantDiscount")}
-            icon={<Percent className="w-3.5 h-3.5 text-green-600" />}
-            tooltip="ส่วนลดที่ร้านออกเองเพื่อดึงดูดลูกค้า (ไม่รวมส่วนลดที่ LINE MAN ออกให้)"
-            placeholder="0"
-          />
-          <NumInput
-            label="ค่าส่งที่ร้านช่วยออก"
-            value={inputs.deliverySubsidy}
-            onChange={set("deliverySubsidy")}
-            icon={<Truck className="w-3.5 h-3.5 text-green-600" />}
-            tooltip="ส่วนที่ร้านช่วยออกค่าส่งให้ลูกค้า เช่น โปรฯ ฟรีค่าส่ง"
-            placeholder="0"
-          />
-        </CardContent>
-      </Card>
-
-      {/* Comparison Results */}
+      {/* Settings Panel */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Normal */}
-        <Card className="border-gray-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-gray-600 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-gray-400 inline-block" />
-              Commission ปกติ ({(GRAB_NORMAL_COMMISSION * 100).toFixed(0)}%)
+        {/* Normal Channel */}
+        <Card className="border-2 border-gray-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2 text-gray-700">
+              <div className="w-3 h-3 rounded-full bg-gray-400" />
+              ออเดอร์ปกติ (LINE MAN ทั่วไป)
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3">
-            <ResultCard
-              label="กำไรขั้นต้น (GP)"
-              value={result.grossProfit}
-              status={getMarginStatus(result.gpMargin)}
-              tooltip={TOOLTIPS.gp}
-            />
-            <ResultCard
-              label="GP Margin"
-              value={result.gpMargin}
-              isPercent
-              status={getMarginStatus(result.gpMargin)}
-              tooltip={TOOLTIPS.gpMargin}
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium flex items-center gap-1">
+                ราคาขายเฉลี่ยต่อออเดอร์
+                <InfoTooltip content="ราคาเฉลี่ยของออเดอร์ที่ลูกค้าสั่ง เช่น ถ้าออเดอร์ส่วนใหญ่อยู่ที่ 100-200 บาท ให้ใส่ค่าเฉลี่ยประมาณ 150 บาท" />
+              </Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">฿</span>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={inputs.normalAvgPrice || ""}
+                  onChange={(e) => handleChange("normalAvgPrice", e.target.value)}
+                  className="pl-7 text-right font-mono"
+                  placeholder="150"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium flex items-center gap-1">
+                GP% ที่ได้รับจาก LINE MAN (ปกติ)
+                <InfoTooltip content="เปอร์เซ็นต์กำไรขั้นต้นที่ร้านได้รับหลังจาก LINE MAN หัก Commission แล้ว ดูได้จากรายงานใน LINE MAN Partner Portal" />
+              </Label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={inputs.normalGpPercent || ""}
+                  onChange={(e) => handleChange("normalGpPercent", e.target.value)}
+                  className="pr-8 text-right font-mono"
+                  placeholder="65"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
+              </div>
+              <p className="text-xs text-gray-400">ดูค่านี้ได้จาก LINE MAN Partner Portal → รายงาน</p>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Thai Plus */}
-        <Card className="border-green-200 bg-gradient-to-br from-green-50/50 to-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-green-700 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-              LINE MAN โปรแกรมพิเศษ ({(GRAB_THAI_PLUS_COMMISSION * 100).toFixed(0)}%)
-              <span className="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                ประหยัดกว่า
-              </span>
+        {/* Plus Channel */}
+        <Card className="border-2 border-[#0EC963]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2 text-[#0aaa54]">
+              <div className="w-3 h-3 rounded-full bg-[#0EC963]" />
+              ออเดอร์ไทยช่วยไทยพลัส
+              <Badge className="bg-[#0EC963] text-white text-xs ml-auto">โปรแกรมพิเศษ</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3">
-            <ResultCard
-              label="กำไรขั้นต้น (GP)"
-              value={result.grossProfitThaiPlus}
-              status={getMarginStatus(result.gpMarginThaiPlus)}
-              highlight
-              tooltip={TOOLTIPS.gp}
-            />
-            <ResultCard
-              label="GP Margin"
-              value={result.gpMarginThaiPlus}
-              isPercent
-              status={getMarginStatus(result.gpMarginThaiPlus)}
-              highlight
-              tooltip={TOOLTIPS.gpMargin}
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium flex items-center gap-1">
+                ราคาขายเฉลี่ยต่อออเดอร์
+                <InfoTooltip content="ราคาเฉลี่ยของออเดอร์ในโปรแกรมไทยช่วยไทยพลัส อาจตั้งราคาต่างจากปกติได้" />
+              </Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">฿</span>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={inputs.plusAvgPrice || ""}
+                  onChange={(e) => handleChange("plusAvgPrice", e.target.value)}
+                  className="pl-7 text-right font-mono"
+                  placeholder="150"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium flex items-center gap-1">
+                GP% ที่ได้รับจากไทยช่วยไทยพลัส
+                <InfoTooltip content="เปอร์เซ็นต์กำไรขั้นต้นที่ร้านได้รับในโปรแกรมพิเศษ ซึ่งมักจะสูงกว่าปกติเพราะ Commission ถูกกว่า" />
+              </Label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={inputs.plusGpPercent || ""}
+                  onChange={(e) => handleChange("plusGpPercent", e.target.value)}
+                  className="pr-8 text-right font-mono"
+                  placeholder="72"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
+              </div>
+              <p className="text-xs text-gray-400">ดูค่านี้ได้จาก LINE MAN Partner Portal → โปรแกรมพิเศษ</p>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Savings Banner */}
-      {result.grossProfitThaiPlus > result.grossProfit && (
-        <div className="bg-green-600 text-white rounded-xl p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium opacity-90">LINE MAN โปรแกรมพิเศษ ช่วยเพิ่มกำไร</p>
-            <p className="text-2xl font-bold num">
-              +฿{(result.grossProfitThaiPlus - result.grossProfit).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm opacity-90">ต่อออเดอร์</p>
-            <p className="text-lg font-bold">
-              +{(result.gpMarginThaiPlus - result.gpMargin).toFixed(1)}%
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <Button
+          onClick={handleSave}
+          disabled={saveMutation.isPending || isSaved}
+          className={cn(
+            "gap-2 transition-all",
+            isSaved
+              ? "bg-gray-100 text-gray-500 hover:bg-gray-100"
+              : "bg-[#0EC963] hover:bg-[#0aaa54] text-white"
+          )}
+        >
+          <Save className="w-4 h-4" />
+          {saveMutation.isPending ? "กำลังบันทึก..." : isSaved ? "บันทึกแล้ว ✓" : "บันทึกการตั้งค่า"}
+        </Button>
+      </div>
 
-      {/* Recommended Price */}
-      <Card className="border-green-100">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base text-green-800">
-            <TrendingUp className="w-5 h-5 text-green-600" />
-            ราคาขายแนะนำ
-            <InfoTooltip content={TOOLTIPS.recommendedPrice} />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">เป้าหมาย GP Margin</span>
-              <span className="font-bold text-green-700">{targetMargin}%</span>
-            </div>
-            <Slider
-              value={[targetMargin]}
-              onValueChange={([v]) => setTargetMargin(v)}
-              min={10}
-              max={60}
-              step={5}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-400">
-              <span>10%</span>
-              <span>60%</span>
-            </div>
-          </div>
-          <div className={cn(
-            "rounded-xl border p-4 text-center",
-            recommendedPrice > 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
-          )}>
-            {recommendedPrice > 0 ? (
-              <>
-                <p className="text-xs text-gray-500 mb-1">ราคาขายขั้นต่ำที่ควรตั้ง (LINE MAN โปรแกรมพิเศษ)</p>
-                <p className="text-3xl font-bold text-green-700 num">
-                  ฿{recommendedPrice.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+      <Separator />
+
+      {/* Results Comparison */}
+      <div>
+        <h3 className="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <Calculator className="w-4 h-4 text-[#0EC963]" />
+          ผลการคำนวณกำไรต่อออเดอร์
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Normal Result */}
+          <Card className="bg-gray-50 border-gray-200">
+            <CardContent className="pt-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 font-medium">ออเดอร์ปกติ</span>
+                <StatusBadge status={normalStatus} />
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-gray-800 num">
+                  ฿{results.normalGpPerOrder.toFixed(2)}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">เพื่อให้ได้ GP Margin {targetMargin}%</p>
-              </>
-            ) : (
-              <p className="text-sm text-red-600">ไม่สามารถคำนวณได้ กรุณาลดต้นทุนหรือลดเป้าหมาย Margin</p>
-            )}
+                <p className="text-sm text-gray-500">กำไรต่อออเดอร์</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">GP Margin:</span>
+                <span className={cn(
+                  "text-sm font-semibold",
+                  normalStatus === "healthy" ? "text-[#0EC963]" : normalStatus === "warning" ? "text-yellow-600" : "text-red-600"
+                )}>
+                  {inputs.normalGpPercent.toFixed(1)}%
+                </span>
+              </div>
+              <div className="text-xs text-gray-500 bg-white rounded p-2 border">
+                ฿{inputs.normalAvgPrice} × {inputs.normalGpPercent}% = ฿{results.normalGpPerOrder.toFixed(2)}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Plus Result */}
+          <Card className="bg-green-50 border-[#0EC963]">
+            <CardContent className="pt-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-[#0aaa54] font-medium">ไทยช่วยไทยพลัส</span>
+                <StatusBadge status={plusStatus} />
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-[#0EC963] num">
+                  ฿{results.plusGpPerOrder.toFixed(2)}
+                </p>
+                <p className="text-sm text-[#0aaa54]">กำไรต่อออเดอร์</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-[#0aaa54]">GP Margin:</span>
+                <span className="text-sm font-semibold text-[#0EC963]">
+                  {inputs.plusGpPercent.toFixed(1)}%
+                </span>
+              </div>
+              <div className="text-xs text-[#0aaa54] bg-white rounded p-2 border border-[#0EC963]/30">
+                ฿{inputs.plusAvgPrice} × {inputs.plusGpPercent}% = ฿{results.plusGpPerOrder.toFixed(2)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Difference Banner */}
+      <Card className={cn(
+        "border-2",
+        results.diffPerOrder > 0
+          ? "border-[#0EC963] bg-green-50"
+          : results.diffPerOrder < 0
+          ? "border-red-400 bg-red-50"
+          : "border-gray-300 bg-gray-50"
+      )}>
+        <CardContent className="pt-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              {results.diffPerOrder > 0 ? (
+                <TrendingUp className="w-8 h-8 text-[#0EC963]" />
+              ) : results.diffPerOrder < 0 ? (
+                <TrendingDown className="w-8 h-8 text-red-500" />
+              ) : (
+                <Minus className="w-8 h-8 text-gray-400" />
+              )}
+              <div>
+                <p className="text-sm font-medium text-gray-700">ผลต่างกำไรต่อออเดอร์</p>
+                <p className="text-xs text-gray-500">ไทยช่วยไทยพลัส เทียบกับ ออเดอร์ปกติ</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className={cn(
+                "text-2xl font-bold num",
+                results.diffPerOrder > 0 ? "text-[#0EC963]" : results.diffPerOrder < 0 ? "text-red-600" : "text-gray-600"
+              )}>
+                {results.diffPerOrder > 0 ? "+" : ""}{results.diffPerOrder.toFixed(2)} บาท
+              </p>
+              <p className={cn(
+                "text-sm font-medium",
+                results.diffPerOrder > 0 ? "text-[#0aaa54]" : results.diffPerOrder < 0 ? "text-red-500" : "text-gray-500"
+              )}>
+                {results.diffPercent > 0 ? "+" : ""}{results.diffPercent.toFixed(1)}% GP Margin
+              </p>
+            </div>
           </div>
+          {results.diffPerOrder > 0 && (
+            <p className="text-sm text-[#0aaa54] mt-3 pt-3 border-t border-[#0EC963]/30">
+              💡 ทุก 100 ออเดอร์ที่เป็นไทยช่วยไทยพลัส คุณได้กำไรเพิ่มขึ้น{" "}
+              <strong>฿{(results.diffPerOrder * 100).toFixed(0)}</strong>
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
