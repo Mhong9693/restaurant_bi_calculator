@@ -56,3 +56,13 @@
 - [x] Monthly Summary: เปรียบเทียบกำไรรวม ปกติ vs ไทยช่วยไทยพลัส
 - [x] Monthly Summary: ยอดขายรวม + ต้นทุนรวมแต่ละช่องทาง
 - [x] Monthly Summary: คำนวณออเดอร์ไทยช่วยไทยพลัสที่ต้องได้เพื่อชดเชยออเดอร์ปกติ
+
+## แก้สูตรคำนวณ GP ให้ถูกต้องตาม Wongnai/LINE MAN
+
+- [x] GPCalculator: เปลี่ยน input จาก GP% เป็น Commission% (ที่ LINE MAN หัก)
+- [x] GPCalculator: คำนวณ GP% สุทธิอัตโนมัติ = (1 - commission% × 1.07) × 100
+- [x] GPCalculator: คำนวณกำไรต่อออเดอร์ = ราคาขาย × (1 - commission% × 1.07)
+- [x] GPCalculator: แสดง GP% สุทธิที่คำนวณได้ให้ผู้ใช้เห็น (read-only)
+- [x] อัปเดต GPSettings type: เปลี่ยน normalGpPercent/plusGpPercent เป็น normalCommission/plusCommission
+- [x] อัปเดต database schema: RENAME normalGpPercent→normalCommission, plusGpPercent→plusCommission
+- [x] อัปเดต tests ให้ครอบคลุมสูตรใหม่ (29 tests passing)

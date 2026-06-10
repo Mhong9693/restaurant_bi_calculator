@@ -113,9 +113,9 @@ export async function upsertGpSettings(settings: InsertGpSettings) {
   await db.insert(gpSettings).values(settings).onDuplicateKeyUpdate({
     set: {
       normalAvgPrice: settings.normalAvgPrice,
-      normalGpPercent: settings.normalGpPercent,
+      normalCommission: settings.normalCommission,
       plusAvgPrice: settings.plusAvgPrice,
-      plusGpPercent: settings.plusGpPercent,
+      plusCommission: settings.plusCommission,
     },
   });
 }

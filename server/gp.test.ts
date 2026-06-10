@@ -1,7 +1,66 @@
 import { describe, expect, it } from "vitest";
-import { calculateGP, calculateBreakEven, simulatePromotion, GRAB_NORMAL_COMMISSION, GRAB_THAI_PLUS_COMMISSION } from "../shared/gpCalculations";
+import { calculateGP, calculateBreakEven, simulatePromotion, GRAB_NORMAL_COMMISSION, GRAB_THAI_PLUS_COMMISSION, calcNetGpPercent, calcGpPerOrder } from "../shared/gpCalculations";
 
-describe("calculateGP", () => {
+// -------------------------------------------------------
+// Tests for the new commission-based formula
+// GP% สุทธิ = (1 - commission% × 1.07) × 100
+// กำไรต่อออเดอร์ = ราคาขาย × GP% สุทธิ / 100
+// -------------------------------------------------------
+
+describe("calcNetGpPercent (commission-based formula)", () => {
+  it("Commission 30% → GP% สุทธิ = 67.9%", () => {
+    // (1 - 0.30 × 1.07) × 100 = (1 - 0.321) × 100 = 67.9
+    expect(calcNetGpPercent(30)).toBeCloseTo(67.9, 1);
+  });
+
+  it("Commission 23% → GP% สุทธิ = 75.39%", () => {
+    // (1 - 0.23 × 1.07) × 100 = (1 - 0.2461) × 100 = 75.39
+    expect(calcNetGpPercent(23)).toBeCloseTo(75.39, 1);
+  });
+
+  it("Commission 0% → GP% สุทธิ = 100%", () => {
+    expect(calcNetGpPercent(0)).toBeCloseTo(100, 1);
+  });
+
+  it("Commission 100% → GP% สุทธิ เป็นลบ (ขาดทุน)", () => {
+    // (1 - 1.00 × 1.07) × 100 = -7
+    expect(calcNetGpPercent(100)).toBeCloseTo(-7, 1);
+  });
+
+  it("Plus commission ต่ำกว่า normal → GP% สุทธิสูงกว่า", () => {
+    const normalGp = calcNetGpPercent(30);
+    const plusGp = calcNetGpPercent(23);
+    expect(plusGp).toBeGreaterThan(normalGp);
+  });
+});
+
+describe("calcGpPerOrder (commission-based formula)", () => {
+  it("ราคา 150 บาท, Commission 30% → กำไร = 101.85 บาท", () => {
+    // 150 × (1 - 0.30 × 1.07) = 150 × 0.679 = 101.85
+    expect(calcGpPerOrder(150, 30)).toBeCloseTo(101.85, 1);
+  });
+
+  it("ราคา 150 บาท, Commission 23% → กำไร = 113.09 บาท", () => {
+    // 150 × (1 - 0.23 × 1.07) = 150 × 0.7539 = 113.09
+    expect(calcGpPerOrder(150, 23)).toBeCloseTo(113.09, 1);
+  });
+
+  it("ราคา 100 บาท, Commission 30% → กำไร = 67.9 บาท (ตาม Wongnai example)", () => {
+    // ยอดขาย 100 บาท, GP 30% = 30 บาท, VAT บน GP = 2.1 บาท
+    // ร้านได้รับ = 100 - 30 - 2.1 = 67.9 บาท
+    expect(calcGpPerOrder(100, 30)).toBeCloseTo(67.9, 1);
+  });
+
+  it("ราคา 0 บาท → กำไร = 0 บาท", () => {
+    expect(calcGpPerOrder(0, 30)).toBe(0);
+  });
+});
+
+// -------------------------------------------------------
+// Legacy tests for calculateGP (item-level cost breakdown)
+// -------------------------------------------------------
+
+describe("calculateGP (legacy item-level)", () => {
   it("calculates GP correctly for normal commission", () => {
     const result = calculateGP({
       sellingPrice: 100,
@@ -49,8 +108,6 @@ describe("calculateGP", () => {
   });
 
   it("returns warning status when margin is between 15% and 30%", () => {
-    // With foodCost=45, packagingCost=5 → totalCost=50
-    // Normal: 100 - 100*0.30*1.07 - 50 = 100 - 32.1 - 50 = 17.9 → 17.9%
     const result = calculateGP({
       sellingPrice: 100,
       foodCost: 45,
@@ -86,7 +143,6 @@ describe("calculateGP", () => {
     });
     const recPrice = result.recommendedPrice(30);
     expect(recPrice).toBeGreaterThan(0);
-    // Verify: at recommended price, margin should be ~30%
     const verify = calculateGP({
       sellingPrice: recPrice,
       foodCost: 25,

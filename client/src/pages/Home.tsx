@@ -18,16 +18,21 @@ const GATED_TABS = ["breakeven", "menu", "monthly", "promotion", "daily"];
 
 const DEFAULT_SETTINGS: GPSettings = {
   normalAvgPrice: 150,
-  normalGpPercent: 65,
+  normalCommission: 30,
   plusAvgPrice: 150,
-  plusGpPercent: 72,
+  plusCommission: 23,
 };
 
+// GP% สุทธิ = (1 - commission% × 1.07) × 100
+// ปกติ: (1 - 0.30 × 1.07) × 100 = 67.9%  → กำไร = 150 × 67.9% = 101.85
+// พลัส: (1 - 0.23 × 1.07) × 100 = 75.39% → กำไร = 150 × 75.39% = 113.09
 const DEFAULT_RESULTS: GPResults = {
-  normalGpPerOrder: 97.5,
-  plusGpPerOrder: 108,
-  diffPerOrder: 10.5,
-  diffPercent: 7,
+  normalGpPerOrder: 101.85,
+  plusGpPerOrder: 113.09,
+  normalNetGpPercent: 67.9,
+  plusNetGpPercent: 75.39,
+  diffPerOrder: 11.24,
+  diffPercent: 7.49,
 };
 
 export default function Home() {
@@ -177,9 +182,9 @@ export default function Home() {
           <TabsContent value="dashboard" className="mt-0">
             <StoreDashboard
               normalAvgPrice={gpSettings.normalAvgPrice}
-              normalGpPercent={gpSettings.normalGpPercent}
+              normalGpPercent={gpResults.normalNetGpPercent}
               plusAvgPrice={gpSettings.plusAvgPrice}
-              plusGpPercent={gpSettings.plusGpPercent}
+              plusGpPercent={gpResults.plusNetGpPercent}
               normalGpPerOrder={gpResults.normalGpPerOrder}
               plusGpPerOrder={gpResults.plusGpPerOrder}
             />
@@ -226,7 +231,7 @@ export default function Home() {
             <div className="max-w-2xl mx-auto">
               <PromotionSimulator
                 sellingPrice={gpSettings.normalAvgPrice}
-                totalVariableCost={gpSettings.normalAvgPrice * (1 - gpSettings.normalGpPercent / 100)}
+                totalVariableCost={gpSettings.normalAvgPrice * (1 - gpResults.normalNetGpPercent / 100)}
               />
             </div>
           </TabsContent>

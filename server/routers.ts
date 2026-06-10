@@ -142,9 +142,9 @@ export const appRouter = router({
         return {
           ...s,
           normalAvgPrice: Number(s.normalAvgPrice),
-          normalGpPercent: Number(s.normalGpPercent),
+          normalCommission: Number(s.normalCommission),
           plusAvgPrice: Number(s.plusAvgPrice),
-          plusGpPercent: Number(s.plusGpPercent),
+          plusCommission: Number(s.plusCommission),
         };
       }),
 
@@ -152,17 +152,17 @@ export const appRouter = router({
       .input(z.object({
         sessionId: z.string().min(1),
         normalAvgPrice: z.number().min(0),
-        normalGpPercent: z.number().min(0).max(100),
+        normalCommission: z.number().min(0).max(100),
         plusAvgPrice: z.number().min(0),
-        plusGpPercent: z.number().min(0).max(100),
+        plusCommission: z.number().min(0).max(100),
       }))
       .mutation(async ({ input }) => {
         await upsertGpSettings({
           sessionId: input.sessionId,
           normalAvgPrice: String(input.normalAvgPrice),
-          normalGpPercent: String(input.normalGpPercent),
+          normalCommission: String(input.normalCommission),
           plusAvgPrice: String(input.plusAvgPrice),
-          plusGpPercent: String(input.plusGpPercent),
+          plusCommission: String(input.plusCommission),
         });
         return { success: true };
       }),

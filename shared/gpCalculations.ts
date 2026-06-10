@@ -1,4 +1,32 @@
 // GP Calculation constants for LINE MAN Thailand
+
+// -------------------------------------------------------
+// Commission-based formula (ตาม Wongnai / LINE MAN)
+// -------------------------------------------------------
+// GP% สุทธิ = (1 - commission% × 1.07) × 100
+// กำไรต่อออเดอร์ = ราคาขาย × GP% สุทธิ / 100
+// -------------------------------------------------------
+
+export const VAT_ON_COMMISSION = 1.07;
+
+/**
+ * คำนวณ GP% สุทธิที่ร้านได้รับหลังหัก Commission + VAT
+ * @param commissionPercent - Commission% ที่ LINE MAN หัก เช่น 30 หรือ 23
+ * @returns GP% สุทธิ เช่น 67.9 หรือ 75.39
+ */
+export function calcNetGpPercent(commissionPercent: number): number {
+  return (1 - (commissionPercent / 100) * VAT_ON_COMMISSION) * 100;
+}
+
+/**
+ * คำนวณกำไรต่อออเดอร์ (บาท)
+ * @param avgPrice - ราคาขายเฉลี่ยต่อออเดอร์
+ * @param commissionPercent - Commission% ที่ LINE MAN หัก
+ */
+export function calcGpPerOrder(avgPrice: number, commissionPercent: number): number {
+  return avgPrice * calcNetGpPercent(commissionPercent) / 100;
+}
+
 export const GRAB_NORMAL_COMMISSION = 0.30; // 30% normal commission
 export const GRAB_THAI_PLUS_COMMISSION = 0.23; // 23% LINE MAN โปรแกรมพิเศษ commission
 export const GRAB_VAT_ON_GP = 0.07; // 7% VAT on GP

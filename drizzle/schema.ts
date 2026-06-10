@@ -44,16 +44,19 @@ export const menuItems = mysqlTable("menuItems", {
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertMenuItem = typeof menuItems.$inferInsert;
 
-// GP Settings per session — stores avg order price + GP% for both channels
+// GP Settings per session — stores avg order price + Commission% for both channels
+// normalCommission = Commission% ที่ LINE MAN หักจากยอดขาย (เช่น 30)
+// plusCommission   = Commission% สำหรับโปรแกรมพิเศษ (เช่น 23)
+// GP% สุทธิที่ร้านได้รับ = (1 - commission% × 1.07) × 100
 export const gpSettings = mysqlTable("gpSettings", {
   id: int("id").autoincrement().primaryKey(),
   sessionId: varchar("sessionId", { length: 128 }).notNull().unique(),
   // Normal channel
   normalAvgPrice: decimal("normalAvgPrice", { precision: 10, scale: 2 }).notNull().default("0"),
-  normalGpPercent: decimal("normalGpPercent", { precision: 5, scale: 2 }).notNull().default("0"),
+  normalCommission: decimal("normalCommission", { precision: 5, scale: 2 }).notNull().default("30"),
   // LINE MAN Plus channel
   plusAvgPrice: decimal("plusAvgPrice", { precision: 10, scale: 2 }).notNull().default("0"),
-  plusGpPercent: decimal("plusGpPercent", { precision: 5, scale: 2 }).notNull().default("0"),
+  plusCommission: decimal("plusCommission", { precision: 5, scale: 2 }).notNull().default("23"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
