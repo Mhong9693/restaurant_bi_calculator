@@ -119,7 +119,7 @@ export function MenuAnalysisSection({ sessionId }: { sessionId: string }) {
                           <p className="font-semibold num">฿{(item.foodCost + item.packagingCost + item.otherCost).toFixed(0)}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">GP (ไทยช่วยไทย+)</span>
+                          <span className="text-gray-400">GP (LINE MAN)</span>
                           <p className={cn("font-bold num", status === "healthy" ? "text-green-700" : status === "warning" ? "text-yellow-600" : "text-red-600")}>
                             {calc.gpMarginThaiPlus.toFixed(1)}%
                           </p>

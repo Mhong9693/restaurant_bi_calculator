@@ -84,18 +84,18 @@ export default function Home() {
         <div className="container py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-green-600 flex items-center justify-center shadow-sm">
-                <ChefHat className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm">
+                <img src="/manus-storage/lineman-logo_15ac477c.png" alt="LINE MAN" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-gray-900 leading-tight">ไทยช่วยไทยพลัส</h1>
+                <h1 className="text-base font-bold text-gray-900 leading-tight">LINE MAN</h1>
                 <p className="text-xs text-green-600 font-medium leading-tight">GP Calculator & Business Analytics</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs border-green-200 text-green-700 bg-green-50 hidden sm:flex">
                 <Sparkles className="w-3 h-3 mr-1" />
-                GrabFood ไทยช่วยไทยพลัส
+                LINE MAN Partner
               </Badge>
               {!hasAccess && (
                 <Button
@@ -130,15 +130,15 @@ export default function Home() {
               คำนวณ GP และวิเคราะห์<br className="hidden sm:block" />ธุรกิจร้านอาหารของคุณ
             </h2>
             <p className="text-green-100 text-sm leading-relaxed mb-4">
-              เปรียบเทียบกำไรระหว่าง Commission ปกติ 30% กับโปรแกรม
-              <strong className="text-white"> ไทยช่วยไทยพลัส 23%</strong> พร้อมวิเคราะห์จุดคุ้มทุน เมนู และโปรโมชัน
+              เปรียบเทียบกำไรระหว่าง Commission ปกติ 30% กับ
+              <strong className="text-white"> LINE MAN โปรแกรมพิเศษ 23%</strong> พร้อมวิเคราะห์จุดคุ้มทุน เมนู และโปรโมชัน
             </p>
             {/* Quick stats */}
             <div className="flex flex-wrap gap-3">
               {[
                 { label: "ประหยัด Commission", value: "7%" },
                 { label: "GP เพิ่มขึ้น", value: `+฿${(gpResult.grossProfitThaiPlus - gpResult.grossProfit).toFixed(2)}` },
-                { label: "GP Margin ไทยช่วยไทย+", value: `${gpResult.gpMarginThaiPlus.toFixed(1)}%` },
+                { label: "GP Margin LINE MAN", value: `${gpResult.gpMarginThaiPlus.toFixed(1)}%` },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-white/15 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs">
                   <span className="opacity-80">{label}: </span>
@@ -257,7 +257,7 @@ export default function Home() {
         {/* Feature explanation cards */}
         <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { icon: "🧮", title: "คำนวณ GP", desc: "เปรียบเทียบ 30% vs 23%" },
+            { icon: "🧮", title: "คำนวณ GP", desc: "Commission 30% vs 23%" },
             { icon: "📊", title: "Dashboard", desc: "กราฟ Bar & Donut" },
             { icon: "🎯", title: "จุดคุ้มทุน", desc: "ออเดอร์ต่อวัน", gated: true },
             { icon: "🍽️", title: "วิเคราะห์เมนู", desc: "หาเมนูดาวเด่น", gated: true },
@@ -284,8 +284,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-green-100 bg-white mt-10">
         <div className="container py-4 text-center text-xs text-gray-400 space-y-1">
-          <p>เครื่องมือนี้ใช้สำหรับประมาณการเท่านั้น ตัวเลขจริงอาจแตกต่างตามเงื่อนไขของ GrabFood</p>
-          <p>Commission ปกติ 30% | ไทยช่วยไทยพลัส 23% | VAT 7% บน Commission</p>
+          <p>เครื่องมือนี้ใช้สำหรับประมาณการเท่านั้น ตัวเลขจริงอาจแตกต่างตามเงื่อนไขของ LINE MAN</p>
+          <p>Commission ปกติ 30% | LINE MAN โปรแกรมพิเศษ 23% | VAT 7% บน Commission</p>
         </div>
       </footer>
 

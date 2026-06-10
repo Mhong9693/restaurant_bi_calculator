@@ -145,7 +145,7 @@ export function GPCalculator({ onInputsChange }: GPCalculatorProps = {}) {
             value={inputs.sellingPrice}
             onChange={set("sellingPrice")}
             icon={<Tag className="w-3.5 h-3.5 text-green-600" />}
-            tooltip="ราคาที่ลูกค้าจ่ายบน GrabFood"
+            tooltip="ราคาที่ลูกค้าจ่ายบน LINE MAN"
             placeholder="100"
           />
           <NumInput
@@ -177,7 +177,7 @@ export function GPCalculator({ onInputsChange }: GPCalculatorProps = {}) {
             value={inputs.restaurantDiscount}
             onChange={set("restaurantDiscount")}
             icon={<Percent className="w-3.5 h-3.5 text-green-600" />}
-            tooltip="ส่วนลดที่ร้านออกเองเพื่อดึงดูดลูกค้า (ไม่รวมส่วนลดที่ Grab ออกให้)"
+            tooltip="ส่วนลดที่ร้านออกเองเพื่อดึงดูดลูกค้า (ไม่รวมส่วนลดที่ LINE MAN ออกให้)"
             placeholder="0"
           />
           <NumInput
@@ -223,7 +223,7 @@ export function GPCalculator({ onInputsChange }: GPCalculatorProps = {}) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-green-700 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-              ไทยช่วยไทยพลัส ({(GRAB_THAI_PLUS_COMMISSION * 100).toFixed(0)}%)
+              LINE MAN โปรแกรมพิเศษ ({(GRAB_THAI_PLUS_COMMISSION * 100).toFixed(0)}%)
               <span className="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
                 ประหยัดกว่า
               </span>
@@ -253,7 +253,7 @@ export function GPCalculator({ onInputsChange }: GPCalculatorProps = {}) {
       {result.grossProfitThaiPlus > result.grossProfit && (
         <div className="bg-green-600 text-white rounded-xl p-4 flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium opacity-90">ไทยช่วยไทยพลัส ช่วยเพิ่มกำไร</p>
+            <p className="text-sm font-medium opacity-90">LINE MAN โปรแกรมพิเศษ ช่วยเพิ่มกำไร</p>
             <p className="text-2xl font-bold num">
               +฿{(result.grossProfitThaiPlus - result.grossProfit).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </p>
@@ -301,7 +301,7 @@ export function GPCalculator({ onInputsChange }: GPCalculatorProps = {}) {
           )}>
             {recommendedPrice > 0 ? (
               <>
-                <p className="text-xs text-gray-500 mb-1">ราคาขายขั้นต่ำที่ควรตั้ง (ไทยช่วยไทยพลัส)</p>
+                <p className="text-xs text-gray-500 mb-1">ราคาขายขั้นต่ำที่ควรตั้ง (LINE MAN โปรแกรมพิเศษ)</p>
                 <p className="text-3xl font-bold text-green-700 num">
                   ฿{recommendedPrice.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                 </p>

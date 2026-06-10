@@ -38,7 +38,7 @@ export function StoreDashboard(props: DashboardProps) {
       "ค่า Commission": props.sellingPrice * 0.30 * 1.07,
     },
     {
-      name: "ไทยช่วยไทย+ (23%)",
+      name: "LINE MAN โปรแกรมพิเศษ (23%)",
       "กำไร GP": Math.max(0, result.grossProfitThaiPlus),
       "ต้นทุนรวม": result.totalVariableCost,
       "ค่า Commission": props.sellingPrice * 0.23 * 1.07,
@@ -94,7 +94,7 @@ export function StoreDashboard(props: DashboardProps) {
         />
         <KPICard
           icon={<TrendingUp className="w-4 h-4" />}
-          label="GP ไทยช่วยไทย+"
+          label="GP LINE MAN โปรพิเศษ"
           value={`${result.gpMarginThaiPlus.toFixed(1)}%`}
           sub={`฿${result.grossProfitThaiPlus.toFixed(0)}`}
           color={statusThaiPlus === "healthy" ? "green" : statusThaiPlus === "warning" ? "yellow" : "red"}
@@ -108,7 +108,7 @@ export function StoreDashboard(props: DashboardProps) {
           <CardTitle className="flex items-center gap-2 text-base text-green-800">
             <BarChart2 className="w-5 h-5 text-green-600" />
             เปรียบเทียบกำไรและต้นทุน
-            <InfoTooltip content="กราฟแสดงการเปรียบเทียบกำไร GP, ต้นทุนรวม และค่า Commission ระหว่าง Commission ปกติ กับ ไทยช่วยไทยพลัส" />
+            <InfoTooltip content="กราฟแสดงการเปรียบเทียบกำไร GP, ต้นทุนรวม และค่า Commission ระหว่าง Commission ปกติ กับ LINE MAN โปรแกรมพิเศษ" />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -133,7 +133,7 @@ export function StoreDashboard(props: DashboardProps) {
       {/* Donut Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <DonutCard title="สัดส่วนต้นทุน (ปกติ 30%)" data={pieDataNormal} sellingPrice={props.sellingPrice} />
-        <DonutCard title="สัดส่วนต้นทุน (ไทยช่วยไทย+ 23%)" data={pieDataThaiPlus} sellingPrice={props.sellingPrice} highlight />
+        <DonutCard title="สัดส่วนต้นทุน (LINE MAN โปรพิเศษ 23%)" data={pieDataThaiPlus} sellingPrice={props.sellingPrice} highlight />
       </div>
     </div>
   );

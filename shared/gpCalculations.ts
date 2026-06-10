@@ -1,6 +1,6 @@
-// GP Calculation constants for GrabFood Thailand
+// GP Calculation constants for LINE MAN Thailand
 export const GRAB_NORMAL_COMMISSION = 0.30; // 30% normal commission
-export const GRAB_THAI_PLUS_COMMISSION = 0.23; // 23% ไทยช่วยไทยพลัส commission
+export const GRAB_THAI_PLUS_COMMISSION = 0.23; // 23% LINE MAN โปรแกรมพิเศษ commission
 export const GRAB_VAT_ON_GP = 0.07; // 7% VAT on GP
 export const GRAB_DELIVERY_SUBSIDY_DEFAULT = 0; // default delivery subsidy by restaurant
 
@@ -61,7 +61,7 @@ export function calculateGP(input: GPInput): GPResult {
   const grossProfitNormal = netRevenueNormal - totalVariableCost;
   const gpMarginNormal = sellingPrice > 0 ? (grossProfitNormal / sellingPrice) * 100 : 0;
 
-  // Thai Plus commission (23%)
+  // LINE MAN special program commission (23%)
   const commissionThaiPlus = effectivePrice * GRAB_THAI_PLUS_COMMISSION;
   const vatOnCommissionThaiPlus = commissionThaiPlus * GRAB_VAT_ON_GP;
   const netRevenueThaiPlus = effectivePrice - commissionThaiPlus - vatOnCommissionThaiPlus;

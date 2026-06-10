@@ -148,7 +148,7 @@ export function PromotionSimulator({ sellingPrice, totalVariableCost }: Promotio
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-green-800">ส่วนลดสูงสุดที่ไม่ขาดทุน</p>
-              <p className="text-xs text-gray-500 mt-0.5">คำนวณจากต้นทุนและค่า Commission ไทยช่วยไทยพลัส</p>
+              <p className="text-xs text-gray-500 mt-0.5">คำนวณจากต้นทุนและค่า Commission LINE MAN โปรแกรมพิเศษ</p>
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold text-green-700 num">฿{maxDiscountSafe}</p>
