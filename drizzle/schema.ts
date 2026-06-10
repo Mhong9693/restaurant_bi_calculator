@@ -23,6 +23,7 @@ export const leads = mysqlTable("leads", {
   province: varchar("province", { length: 100 }).notNull(),
   foodCategory: varchar("foodCategory", { length: 100 }).notNull(),
   pdpaConsent: boolean("pdpaConsent").notNull().default(false),
+  interestedWongnaiPos: boolean("interestedWongnaiPos").notNull().default(false),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

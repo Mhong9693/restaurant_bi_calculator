@@ -18,6 +18,7 @@ const leadSchema = z.object({
   province: z.string().min(1, "กรุณาเลือกจังหวัด"),
   foodCategory: z.string().min(1, "กรุณาเลือกประเภทอาหาร"),
   pdpaConsent: z.boolean().refine(v => v === true, "กรุณายินยอมเงื่อนไข PDPA"),
+  interestedWongnaiPos: z.boolean().default(false),
 });
 
 const menuItemSchema = z.object({
@@ -54,6 +55,7 @@ export const appRouter = router({
           province: input.province,
           foodCategory: input.foodCategory,
           pdpaConsent: input.pdpaConsent,
+          interestedWongnaiPos: input.interestedWongnaiPos ?? false,
         });
         try {
           await appendLeadToSheet({
@@ -62,6 +64,7 @@ export const appRouter = router({
             province: input.province,
             foodCategory: input.foodCategory,
             pdpaConsent: input.pdpaConsent,
+            interestedWongnaiPos: input.interestedWongnaiPos ?? false,
           });
         } catch (e) {
           console.warn("[GoogleSheets] Sync failed (non-fatal):", e);
@@ -69,7 +72,7 @@ export const appRouter = router({
         try {
           await notifyOwner({
             title: `🎉 Lead ใหม่: ${input.storeName}`,
-            content: `ร้าน: ${input.storeName}\nเบอร์: ${input.phone}\nจังหวัด: ${input.province}\nประเภทอาหาร: ${input.foodCategory}\nเวลา: ${new Date().toLocaleString("th-TH")}`,
+            content: `ร้าน: ${input.storeName}\nเบอร์: ${input.phone}\nจังหวัด: ${input.province}\nประเภทอาหาร: ${input.foodCategory}\nสนใจ Wongnai POS: ${input.interestedWongnaiPos ? '✅ ใช่' : '❌ ไม่'}\nเวลา: ${new Date().toLocaleString("th-TH")}`,
           });
         } catch (e) {
           console.warn("[Notification] Failed to notify owner:", e);

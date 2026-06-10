@@ -15,6 +15,7 @@ interface LeadRow {
   province: string;
   foodCategory: string;
   pdpaConsent: boolean;
+  interestedWongnaiPos?: boolean;
 }
 
 /**
@@ -40,6 +41,7 @@ export async function appendLeadToSheet(lead: LeadRow): Promise<void> {
       lead.province,
       lead.foodCategory,
       lead.pdpaConsent ? "ยินยอม" : "ไม่ยินยอม",
+      lead.interestedWongnaiPos ? "✅ สนใจ" : "❌ ไม่สนใจ",
     ];
 
     // Use gws CLI via child_process to append the row
@@ -59,7 +61,7 @@ export async function appendLeadToSheet(lead: LeadRow): Promise<void> {
       "--params",
       JSON.stringify({
         spreadsheetId: SPREADSHEET_ID,
-        range: `${SHEET_NAME}!A:F`,
+        range: `${SHEET_NAME}!A:G`,
         valueInputOption: "USER_ENTERED",
         insertDataOption: "INSERT_ROWS",
       }),

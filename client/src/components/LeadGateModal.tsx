@@ -42,6 +42,7 @@ export function LeadGateModal({ open, onClose, onSuccess, featureName }: LeadGat
     province: "",
     foodCategory: "",
     pdpaConsent: false,
+    interestedWongnaiPos: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -71,7 +72,14 @@ export function LeadGateModal({ open, onClose, onSuccess, featureName }: LeadGat
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    submitMutation.mutate(form);
+    submitMutation.mutate({
+      storeName: form.storeName,
+      phone: form.phone,
+      province: form.province,
+      foodCategory: form.foodCategory,
+      pdpaConsent: form.pdpaConsent,
+      interestedWongnaiPos: form.interestedWongnaiPos,
+    });
   };
 
   return (
@@ -160,6 +168,19 @@ export function LeadGateModal({ open, onClose, onSuccess, featureName }: LeadGat
               </SelectContent>
             </Select>
             {errors.foodCategory && <p className="text-xs text-red-500">{errors.foodCategory}</p>}
+          </div>
+
+          {/* Wongnai POS Interest */}
+          <div className="flex items-start gap-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2.5">
+            <Checkbox
+              id="wongnaiPos"
+              checked={form.interestedWongnaiPos}
+              onCheckedChange={(v) => setForm({ ...form, interestedWongnaiPos: !!v })}
+              className="mt-0.5"
+            />
+            <Label htmlFor="wongnaiPos" className="text-xs text-green-800 leading-relaxed cursor-pointer font-medium">
+              ⭐ สนใจ Demo Wongnai POS พร้อมรับโปรโมชันราคาพิเศษ
+            </Label>
           </div>
 
           {/* PDPA */}
