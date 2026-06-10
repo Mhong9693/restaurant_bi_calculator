@@ -143,15 +143,15 @@ export function PromotionSimulator({ sellingPrice, totalVariableCost }: Promotio
       </div>
 
       {/* Max Discount Info */}
-      <Card className="border-green-100 bg-green-50/30">
+      <Card className="border-orange-100 bg-orange-50/30">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-green-800">ส่วนลดสูงสุดที่ไม่ขาดทุน</p>
-              <p className="text-xs text-gray-500 mt-0.5">คำนวณจากต้นทุนและค่า Commission LINE MAN โปรแกรมพิเศษ</p>
+              <p className="text-sm font-semibold text-[#EB4700]">ส่วนลดสูงสุดที่ไม่ขาดทุน</p>
+              <p className="text-xs text-gray-500 mt-0.5">คำนวณจากต้นทุนและค่า GP ที่ตั้งไว้</p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-green-700 num">฿{maxDiscountSafe}</p>
+              <p className="text-2xl font-bold text-[#FF671F] num">฿{maxDiscountSafe}</p>
               <p className="text-xs text-gray-500">({((maxDiscountSafe / sellingPrice) * 100).toFixed(0)}%)</p>
             </div>
           </div>

@@ -102,7 +102,7 @@ export function MonthlyOverviewSection({
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2 text-gray-800">
-            <CalendarDays className="w-5 h-5 text-[#0EC963]" />
+            <CalendarDays className="w-5 h-5 text-[#FF671F]" />
             ภาพรวมรายเดือน (30 วันที่ผ่านมา)
           </CardTitle>
         </CardHeader>
@@ -149,7 +149,7 @@ export function MonthlyOverviewSection({
                     <tr className="border-b border-gray-100">
                       <th className="text-left py-2 text-gray-500 font-medium">รายการ</th>
                       <th className="text-right py-2 text-gray-500 font-medium">ออเดอร์ปกติ</th>
-                      <th className="text-right py-2 text-[#0aaa54] font-medium">ไทยช่วยไทยพลัส</th>
+                      <th className="text-right py-2 text-[#FF671F] font-medium">ไทยช่วยไทยพลัส</th>
                       <th className="text-right py-2 text-gray-700 font-medium">รวม</th>
                     </tr>
                   </thead>
@@ -157,13 +157,13 @@ export function MonthlyOverviewSection({
                     <tr>
                       <td className="py-2.5 text-gray-600">จำนวนออเดอร์</td>
                       <td className="py-2.5 text-right font-mono text-gray-700">{totals.normalOrders}</td>
-                      <td className="py-2.5 text-right font-mono text-[#0EC963] font-semibold">{totals.plusOrders}</td>
+                      <td className="py-2.5 text-right font-mono text-[#FF671F] font-semibold">{totals.plusOrders}</td>
                       <td className="py-2.5 text-right font-mono font-bold text-gray-800">{totals.totalOrders}</td>
                     </tr>
                     <tr>
                       <td className="py-2.5 text-gray-600">ยอดขายรวม</td>
                       <td className="py-2.5 text-right font-mono text-gray-700">฿{totals.normalRevenue.toFixed(0)}</td>
-                      <td className="py-2.5 text-right font-mono text-[#0EC963] font-semibold">฿{totals.plusRevenue.toFixed(0)}</td>
+                      <td className="py-2.5 text-right font-mono text-[#FF671F] font-semibold">฿{totals.plusRevenue.toFixed(0)}</td>
                       <td className="py-2.5 text-right font-mono font-bold text-gray-800">฿{totals.totalRevenue.toFixed(0)}</td>
                     </tr>
                     <tr>
@@ -172,18 +172,18 @@ export function MonthlyOverviewSection({
                       <td className="py-2.5 text-right font-mono text-red-400">฿{totals.plusCost.toFixed(0)}</td>
                       <td className="py-2.5 text-right font-mono font-bold text-red-500">฿{totals.totalCost.toFixed(0)}</td>
                     </tr>
-                    <tr className="bg-green-50">
+                    <tr className="bg-orange-50">
                       <td className="py-2.5 text-gray-700 font-semibold">กำไรขั้นต้น</td>
                       <td className="py-2.5 text-right font-mono font-semibold text-gray-700">฿{totals.normalProfit.toFixed(0)}</td>
-                      <td className="py-2.5 text-right font-mono font-semibold text-[#0EC963]">฿{totals.plusProfit.toFixed(0)}</td>
-                      <td className="py-2.5 text-right font-mono font-bold text-[#0EC963]">฿{totals.totalGrossProfit.toFixed(0)}</td>
+                      <td className="py-2.5 text-right font-mono font-semibold text-[#FF671F]">฿{totals.plusProfit.toFixed(0)}</td>
+                      <td className="py-2.5 text-right font-mono font-bold text-[#FF671F]">฿{totals.totalGrossProfit.toFixed(0)}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500">
                 <span>Blended GP ต่อออเดอร์</span>
-                <span className="font-semibold text-[#0EC963] text-sm">฿{totals.blendedGpPerOrder.toFixed(2)}</span>
+                <span className="font-semibold text-[#FF671F] text-sm">฿{totals.blendedGpPerOrder.toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>
@@ -196,16 +196,16 @@ export function MonthlyOverviewSection({
                 <p className="text-2xl font-bold text-gray-800 num">{totals.totalOrders}</p>
                 <div className="flex gap-2 mt-2 flex-wrap">
                   <Badge variant="outline" className="text-xs text-gray-500">ปกติ {totals.normalOrders}</Badge>
-                  <Badge className="text-xs bg-[#0EC963] text-white">พลัส {totals.plusOrders}</Badge>
+                  <Badge className="text-xs bg-[#FF671F] text-white">พลัส {totals.plusOrders}</Badge>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-[#0EC963]/30 bg-green-50">
+            <Card className="border-[#FF671F]/30 bg-orange-50">
               <CardContent className="pt-4 pb-4">
-                <p className="text-xs text-[#0aaa54] mb-1">กำไรขั้นต้นรวม</p>
-                <p className="text-2xl font-bold text-[#0EC963] num">฿{totals.totalGrossProfit.toFixed(0)}</p>
-                <p className="text-xs text-[#0aaa54] mt-1">
+                <p className="text-xs text-[#EB4700] mb-1">กำไรขั้นต้นรวม</p>
+                <p className="text-2xl font-bold text-[#FF671F] num">฿{totals.totalGrossProfit.toFixed(0)}</p>
+                <p className="text-xs text-[#EB4700] mt-1">
                   สัดส่วนพลัส {totals.plusRatio.toFixed(0)}%
                 </p>
               </CardContent>
@@ -216,7 +216,7 @@ export function MonthlyOverviewSection({
           {fixedCostMonthly > 0 && (
             <Card className={cn(
               "border-2",
-              netStatus === "profit" ? "border-[#0EC963] bg-green-50" :
+              netStatus === "profit" ? "border-[#FF671F] bg-orange-50" :
               netStatus === "breakeven" ? "border-yellow-400 bg-yellow-50" :
               "border-red-400 bg-red-50"
             )}>
@@ -229,7 +229,7 @@ export function MonthlyOverviewSection({
                     </p>
                     <p className={cn(
                       "text-3xl font-bold num mt-1",
-                      netStatus === "profit" ? "text-[#0EC963]" :
+                      netStatus === "profit" ? "text-[#FF671F]" :
                       netStatus === "breakeven" ? "text-yellow-600" :
                       "text-red-600"
                     )}>
@@ -238,7 +238,7 @@ export function MonthlyOverviewSection({
                   </div>
                   <div className="text-right">
                     {netStatus === "profit" ? (
-                      <TrendingUp className="w-10 h-10 text-[#0EC963]" />
+                      <TrendingUp className="w-10 h-10 text-[#FF671F]" />
                     ) : netStatus === "breakeven" ? (
                       <Minus className="w-10 h-10 text-yellow-500" />
                     ) : (
@@ -246,7 +246,7 @@ export function MonthlyOverviewSection({
                     )}
                     <p className={cn(
                       "text-xs mt-1 font-medium",
-                      netStatus === "profit" ? "text-[#0aaa54]" :
+                      netStatus === "profit" ? "text-[#EB4700]" :
                       netStatus === "breakeven" ? "text-yellow-600" :
                       "text-red-500"
                     )}>
@@ -263,19 +263,19 @@ export function MonthlyOverviewSection({
           )}
 
           {/* Plus Offset Calculator */}
-          <Card className="border-[#0EC963]/30">
+          <Card className="border-[#FF671F]/30">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2 text-gray-800">
-                <ArrowRightLeft className="w-5 h-5 text-[#0EC963]" />
+                <ArrowRightLeft className="w-5 h-5 text-[#FF671F]" />
                 ออเดอร์พลัสที่ต้องชดเชยออเดอร์ปกติ
                 <InfoTooltip content="ถ้าออเดอร์ปกติหายไปทั้งหมด ต้องได้ออเดอร์พลัสเพิ่มกี่ออเดอร์เพื่อรักษากำไรเดิม" />
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="rounded-xl bg-green-50 border border-[#0EC963]/30 p-4 space-y-3">
+              <div className="rounded-xl bg-orange-50 border border-[#FF671F]/30 p-4 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">ออเดอร์พลัสต่อ 1 ออเดอร์ปกติ</span>
-                  <span className="font-bold text-[#0EC963] num">
+                  <span className="font-bold text-[#FF671F] num">
                     {totals.plusNeededToReplaceNormal.toFixed(2)} ออเดอร์
                   </span>
                 </div>
@@ -283,7 +283,7 @@ export function MonthlyOverviewSection({
                   <span className="text-sm text-gray-600">
                     ชดเชยออเดอร์ปกติ {totals.normalOrders} ออเดอร์ทั้งหมด
                   </span>
-                  <span className="font-bold text-[#0EC963] num text-lg">
+                  <span className="font-bold text-[#FF671F] num text-lg">
                     {totals.plusToOffsetAllNormal} ออเดอร์
                   </span>
                 </div>
@@ -312,7 +312,7 @@ export function MonthlyOverviewSection({
                     />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                     <Bar dataKey="ปกติ" fill="#9ca3af" radius={[2, 2, 0, 0]} stackId="a" />
-                    <Bar dataKey="พลัส" fill="#0EC963" radius={[2, 2, 0, 0]} stackId="a" />
+                    <Bar dataKey="พลัส" fill="#FF671F" radius={[2, 2, 0, 0]} stackId="a" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -346,7 +346,7 @@ export function MonthlyOverviewSection({
                     <Line
                       type="monotone"
                       dataKey="กำไรรวม"
-                      stroke="#0EC963"
+                      stroke="#FF671F"
                       strokeWidth={2}
                       dot={false}
                       activeDot={{ r: 4 }}

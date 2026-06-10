@@ -96,26 +96,28 @@ export default function Home() {
       <header className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#0EC963] flex items-center justify-center text-white font-bold text-lg shadow-sm">
-              M
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-gray-900 leading-tight">LINE MAN GP Calculator</h1>
-              <p className="text-xs text-gray-500 hidden sm:block">เครื่องมือวิเคราะห์กำไรสำหรับร้านอาหาร</p>
+            <img
+              src="/manus-storage/wongnai-logo_ef3cc632.webp"
+              alt="Wongnai"
+              className="h-8 w-auto object-contain"
+            />
+            <div className="hidden sm:block w-px h-6 bg-gray-200" />
+            <div className="hidden sm:block">
+              <p className="text-xs text-gray-500 leading-tight">เครื่องมือวิเคราะห์กำไรร้านอาหาร</p>
             </div>
           </div>
           {!hasAccess && (
             <Button
               size="sm"
               onClick={() => setGateOpen(true)}
-              className="bg-[#0EC963] hover:bg-[#0aaa54] text-white text-xs gap-1"
+              className="bg-[#FF671F] hover:bg-[#EB4700] text-white text-xs gap-1"
             >
               <Lock className="w-3 h-3" />
               ปลดล็อกฟีเจอร์
             </Button>
           )}
           {hasAccess && (
-            <Badge className="bg-green-100 text-[#0aaa54] border-[#0EC963]/30">
+            <Badge className="bg-orange-50 text-[#EB4700] border-[#FF671F]/30">
               ✓ ปลดล็อกแล้ว
             </Badge>
           )}
@@ -123,17 +125,17 @@ export default function Home() {
       </header>
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-[#0EC963] to-emerald-400 text-white">
+      <div className="bg-gradient-to-r from-[#FF671F] to-[#F7931E] text-white">
         <div className="max-w-5xl mx-auto px-4 py-8 sm:py-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-white/20 text-white border-0 text-xs">ไทยช่วยไทยพลัส</Badge>
+                <Badge className="bg-white/20 text-white border-0 text-xs">GP Calculator</Badge>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight">
-                คำนวณกำไรร้านอาหาร<br className="sm:hidden" /> บน LINE MAN
+                คำนวณกำไรร้านอาหาร<br className="sm:hidden" /> Delivery
               </h2>
-              <p className="text-green-100 text-sm sm:text-base">
+              <p className="text-orange-100 text-sm sm:text-base">
                 เปรียบเทียบกำไรออเดอร์ปกติ vs ไทยช่วยไทยพลัส<br />
                 พร้อมวิเคราะห์ภาพรวมรายวันและรายเดือน
               </p>
@@ -164,7 +166,7 @@ export default function Home() {
                   value={tab.id}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm rounded-lg whitespace-nowrap",
-                    "data-[state=active]:bg-[#0EC963] data-[state=active]:text-white data-[state=active]:shadow-sm",
+                    "data-[state=active]:bg-[#FF671F] data-[state=active]:text-white data-[state=active]:shadow-sm",
                     tab.gated && !hasAccess && "opacity-60"
                   )}
                 >
@@ -250,7 +252,7 @@ export default function Home() {
 
         {/* Locked Feature CTA */}
         {!hasAccess && (
-          <div className="mt-10 rounded-2xl bg-gradient-to-r from-[#0EC963] to-emerald-400 p-6 sm:p-8 text-white relative overflow-hidden">
+          <div className="mt-10 rounded-2xl bg-gradient-to-r from-[#FF671F] to-[#F7931E] p-6 sm:p-8 text-white relative overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white -translate-y-1/2 translate-x-1/4" />
             </div>
@@ -260,7 +262,7 @@ export default function Home() {
                   <Lock className="w-5 h-5 opacity-80" />
                   <h3 className="text-lg font-bold">ปลดล็อกฟีเจอร์ขั้นสูงฟรี!</h3>
                 </div>
-                <p className="text-green-100 text-sm mb-3">
+                <p className="text-orange-100 text-sm mb-3">
                   ลงทะเบียนเพื่อใช้งาน: บันทึกรายวัน, ภาพรวมเดือน, จุดคุ้มทุน, วิเคราะห์เมนู และ Simulator โปรโมชัน
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -271,7 +273,7 @@ export default function Home() {
               </div>
               <Button
                 onClick={() => setGateOpen(true)}
-                className="bg-white text-[#0aaa54] hover:bg-green-50 font-semibold shrink-0"
+                className="bg-white text-[#EB4700] hover:bg-orange-50 font-semibold shrink-0"
               >
                 ลงทะเบียนฟรี
                 <ArrowRight className="w-4 h-4 ml-1" />
@@ -295,7 +297,7 @@ export default function Home() {
               key={id}
               className={cn(
                 "rounded-xl border p-3 text-center cursor-pointer transition-all duration-200 hover:shadow-sm",
-                gated && !hasAccess ? "border-gray-200 bg-gray-50 opacity-70" : "border-green-100 bg-white hover:border-[#0EC963]/40"
+                gated && !hasAccess ? "border-gray-200 bg-gray-50 opacity-70" : "border-orange-100 bg-white hover:border-[#FF671F]/40"
               )}
               onClick={() => handleTabChange(id)}
             >
@@ -309,7 +311,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-12 pb-8 text-center text-xs text-gray-400">
-          <p>LINE MAN GP Calculator • เครื่องมือวิเคราะห์กำไรสำหรับร้านอาหาร</p>
+          <p>Wongnai GP Calculator • เครื่องมือวิเคราะห์กำไรสำหรับร้านอาหาร</p>
           <p className="mt-1">ข้อมูลทั้งหมดถูกเก็บไว้ในเบราว์เซอร์ของคุณ ไม่มีการแชร์ข้อมูลโดยไม่ได้รับอนุญาต</p>
         </footer>
       </div>

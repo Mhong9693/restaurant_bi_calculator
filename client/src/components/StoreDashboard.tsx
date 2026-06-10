@@ -19,8 +19,8 @@ interface DashboardProps {
 }
 
 const COLORS = {
-  profit: "#0aaa54",
-  profitPlus: "#0EC963",
+  profit: "#EB4700",
+  profitPlus: "#FF671F",
   cost: "#f59e0b",
   commission: "#6b7280",
 };
@@ -80,24 +80,24 @@ export function StoreDashboard({
           </CardContent>
         </Card>
 
-        <Card className="border-[#0EC963]/40 bg-green-50">
+        <Card className="border-[#FF671F]/40 bg-orange-50">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-start justify-between mb-2">
-              <p className="text-xs text-[#0aaa54]">กำไร/ออเดอร์พลัส</p>
+              <p className="text-xs text-[#EB4700]">กำไร/ออเดอร์พลัส</p>
               <StatusBadge status={plusStatus} />
             </div>
-            <p className="text-2xl font-bold text-[#0EC963] num">฿{plusGpPerOrder.toFixed(2)}</p>
-            <p className="text-xs text-[#0aaa54] mt-1">GP {plusGpPercent.toFixed(1)}%</p>
+            <p className="text-2xl font-bold text-[#FF671F] num">฿{plusGpPerOrder.toFixed(2)}</p>
+            <p className="text-xs text-[#EB4700] mt-1">GP {plusGpPercent.toFixed(1)}%</p>
           </CardContent>
         </Card>
 
-        <Card className={cn("border-2", diffGp >= 0 ? "border-[#0EC963]/40 bg-green-50" : "border-red-200 bg-red-50")}>
+        <Card className={cn("border-2", diffGp >= 0 ? "border-[#FF671F]/40 bg-orange-50" : "border-red-200 bg-red-50")}>
           <CardContent className="pt-4 pb-4">
             <div className="flex items-start justify-between mb-2">
               <p className="text-xs text-gray-500">ผลต่างกำไร/ออเดอร์</p>
-              <TrendingUp className={cn("w-4 h-4", diffGp >= 0 ? "text-[#0EC963]" : "text-red-500")} />
+              <TrendingUp className={cn("w-4 h-4", diffGp >= 0 ? "text-[#FF671F]" : "text-red-500")} />
             </div>
-            <p className={cn("text-2xl font-bold num", diffGp >= 0 ? "text-[#0EC963]" : "text-red-600")}>
+            <p className={cn("text-2xl font-bold num", diffGp >= 0 ? "text-[#FF671F]" : "text-red-600")}>
               {diffGp >= 0 ? "+" : ""}฿{diffGp.toFixed(2)}
             </p>
             <p className="text-xs text-gray-500 mt-1">
@@ -113,9 +113,9 @@ export function StoreDashboard({
                 กำไรเพิ่ม 100 ออเดอร์พลัส
                 <InfoTooltip content="ถ้าออเดอร์ 100 ออเดอร์เป็นไทยช่วยไทยพลัสทั้งหมด คุณจะได้กำไรเพิ่มขึ้นเท่าไหร่" />
               </p>
-              <DollarSign className="w-4 h-4 text-[#0EC963]" />
+              <DollarSign className="w-4 h-4 text-[#FF671F]" />
             </div>
-            <p className="text-2xl font-bold text-[#0EC963] num">
+            <p className="text-2xl font-bold text-[#FF671F] num">
               ฿{(diffGp * 100).toFixed(0)}
             </p>
             <p className="text-xs text-gray-500 mt-1">ต่อ 100 ออเดอร์</p>
@@ -127,7 +127,7 @@ export function StoreDashboard({
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2 text-gray-800">
-            <BarChart2 className="w-5 h-5 text-[#0EC963]" />
+              <BarChart2 className="w-5 h-5 text-[#FF671F]" />
             เปรียบเทียบกำไรและต้นทุนต่อออเดอร์
           </CardTitle>
         </CardHeader>
@@ -169,9 +169,9 @@ export function StoreDashboard({
           </CardContent>
         </Card>
 
-        <Card className="border-[#0EC963]/30">
+        <Card className="border-[#FF671F]/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-[#0aaa54]">สัดส่วนต้นทุน — ไทยช่วยไทยพลัส</CardTitle>
+            <CardTitle className="text-sm text-[#EB4700]">สัดส่วนต้นทุน — ไทยช่วยไทยพลัส</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={180}>
@@ -183,7 +183,7 @@ export function StoreDashboard({
                 <ReTooltip formatter={(v: number) => [`฿${v}`, ""]} contentStyle={{ fontSize: 11, borderRadius: 8 }} />
               </PieChart>
             </ResponsiveContainer>
-            <p className="text-center text-xs text-[#0aaa54] mt-1">ราคาขายเฉลี่ย ฿{plusAvgPrice}</p>
+            <p className="text-center text-xs text-[#EB4700] mt-1">ราคาขายเฉลี่ย ฿{plusAvgPrice}</p>
           </CardContent>
         </Card>
       </div>

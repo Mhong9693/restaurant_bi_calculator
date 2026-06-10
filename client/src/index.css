@@ -78,40 +78,49 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* LINE MAN Green: #0EC963 = oklch(0.74 0.21 152) */
+/*
+  Wongnai CI Colours
+  Primary  : Wongnai Orange  #FF671F  oklch(0.68 0.21 38)
+  Secondary: Wongnai Blue    #003DA5  oklch(0.33 0.17 264)
+  Dark Org : Wongnai DkOrg   #EB4700  oklch(0.60 0.22 38)
+  Yellow   : Wongnai Yellow  #F7931E  oklch(0.74 0.18 62)
+*/
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.99 0.003 152);
-  --foreground: oklch(0.14 0.01 152);
+  --background: oklch(0.99 0.002 38);
+  --foreground: oklch(0.14 0.01 264);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.14 0.01 152);
+  --card-foreground: oklch(0.14 0.01 264);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.14 0.01 152);
-  --primary: oklch(0.74 0.21 152);
+  --popover-foreground: oklch(0.14 0.01 264);
+  /* Primary = Wongnai Orange */
+  --primary: oklch(0.68 0.21 38);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.02 152);
-  --secondary-foreground: oklch(0.28 0.10 152);
-  --muted: oklch(0.96 0.01 152);
-  --muted-foreground: oklch(0.54 0.03 152);
-  --accent: oklch(0.94 0.05 152);
-  --accent-foreground: oklch(0.28 0.10 152);
+  /* Secondary = Wongnai Blue */
+  --secondary: oklch(0.96 0.02 264);
+  --secondary-foreground: oklch(0.33 0.17 264);
+  --muted: oklch(0.96 0.01 38);
+  --muted-foreground: oklch(0.54 0.03 38);
+  --accent: oklch(0.95 0.04 38);
+  --accent-foreground: oklch(0.33 0.17 264);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0.025 152);
-  --input: oklch(0.91 0.025 152);
-  --ring: oklch(0.74 0.21 152);
-  --chart-1: oklch(0.74 0.21 152);
-  --chart-2: oklch(0.62 0.18 152);
-  --chart-3: oklch(0.82 0.14 152);
-  --chart-4: oklch(0.72 0.18 60);
-  --chart-5: oklch(0.60 0.15 30);
-  --sidebar: oklch(0.97 0.01 152);
-  --sidebar-foreground: oklch(0.14 0.01 152);
-  --sidebar-primary: oklch(0.74 0.21 152);
+  --border: oklch(0.91 0.015 38);
+  --input: oklch(0.91 0.015 38);
+  --ring: oklch(0.68 0.21 38);
+  /* Charts: orange, dark-orange, yellow, blue, muted */
+  --chart-1: oklch(0.68 0.21 38);
+  --chart-2: oklch(0.60 0.22 38);
+  --chart-3: oklch(0.74 0.18 62);
+  --chart-4: oklch(0.33 0.17 264);
+  --chart-5: oklch(0.54 0.10 264);
+  --sidebar: oklch(0.97 0.01 38);
+  --sidebar-foreground: oklch(0.14 0.01 264);
+  --sidebar-primary: oklch(0.68 0.21 38);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.05 152);
-  --sidebar-accent-foreground: oklch(0.28 0.10 152);
-  --sidebar-border: oklch(0.91 0.025 152);
-  --sidebar-ring: oklch(0.74 0.21 152);
+  --sidebar-accent: oklch(0.95 0.04 38);
+  --sidebar-accent-foreground: oklch(0.33 0.17 264);
+  --sidebar-border: oklch(0.91 0.015 38);
+  --sidebar-ring: oklch(0.68 0.21 38);
 }
 
 @layer base {
@@ -162,77 +171,81 @@ button:active {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.80 0.05 150);
+  background: oklch(0.80 0.05 38);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.60 0.10 150);
+  background: oklch(0.60 0.10 38);
 }
 
 /* Recharts customization */
 .recharts-tooltip-wrapper .recharts-default-tooltip {
   border-radius: 8px !important;
-  border: 1px solid oklch(0.92 0.02 150) !important;
+  border: 1px solid oklch(0.92 0.02 38) !important;
   box-shadow: 0 4px 16px -2px rgba(0,0,0,0.08) !important;
 }
 
-/* LINE MAN Brand Color Overrides - #0EC963 */
-/* Override Tailwind green-* with LINE MAN exact brand color */
+/*
+  Wongnai Brand Color Overrides
+  Map Tailwind green-* → Wongnai Orange  (#FF671F / #EB4700)
+  so existing className="bg-green-600" etc. render in Wongnai orange.
+  Thai Chuay Thai Plus section keeps its own inline styles (blue bg, green text).
+*/
 @layer utilities {
-  .bg-lineman { background-color: #0EC963; }
-  .text-lineman { color: #0EC963; }
-  .border-lineman { border-color: #0EC963; }
+  /* Core brand orange */
+  .bg-wongnai          { background-color: #FF671F; }
+  .text-wongnai        { color: #FF671F; }
+  .border-wongnai      { border-color: #FF671F; }
 
-  /* Remap green-600 → #0EC963 */
-  .bg-green-600 { background-color: #0EC963 !important; }
-  .hover\:bg-green-700:hover { background-color: #0baa54 !important; }
-  .bg-green-700 { background-color: #0baa54 !important; }
-  .text-green-600 { color: #0EC963 !important; }
-  .text-green-700 { color: #0baa54 !important; }
-  .text-green-800 { color: #097a3d !important; }
-  .border-green-600 { border-color: #0EC963 !important; }
-  .border-green-200 { border-color: #a7f3d0 !important; }
-  .border-green-100 { border-color: #d1fae5 !important; }
-  .bg-green-50 { background-color: #f0fdf4 !important; }
-  .bg-green-100 { background-color: #dcfce7 !important; }
-  .from-green-50 { --tw-gradient-from: #f0fdf4 !important; }
-  .from-green-700 { --tw-gradient-from: #0baa54 !important; }
-  .via-green-600 { --tw-gradient-via: #0EC963 !important; }
-  .to-emerald-500 { --tw-gradient-to: #10b981 !important; }
-  .to-emerald-50 { --tw-gradient-to: #ecfdf5 !important; }
-  .text-green-500 { color: #0EC963 !important; }
-  .text-green-100 { color: #dcfce7 !important; }
-  .text-green-200 { color: #bbf7d0 !important; }
-  .bg-green-600\/10 { background-color: rgba(14, 201, 99, 0.1) !important; }
-  .hover\:bg-green-50:hover { background-color: #f0fdf4 !important; }
-  .hover\:border-green-200:hover { border-color: #a7f3d0 !important; }
-  .bg-gradient-to-br.from-green-50 { background-image: linear-gradient(to bottom right, #f0fdf4, #fff, #ecfdf5) !important; }
-  .from-green-50.via-white.to-emerald-50 { background-image: linear-gradient(to bottom right, #f0fdf4, #fff, #ecfdf5) !important; }
-  .bg-green-50\/30 { background-color: rgba(240, 253, 244, 0.3) !important; }
-  .data-\[state\=active\]\:bg-green-600[data-state=active] { background-color: #0EC963 !important; }
-}
+  /* Wongnai blue */
+  .bg-wongnai-blue     { background-color: #003DA5; }
+  .text-wongnai-blue   { color: #003DA5; }
+  .border-wongnai-blue { border-color: #003DA5; }
 
-/* LINE MAN Green additional overrides */
-@layer utilities {
-  .text-green-300 { color: #6ee7b7 !important; }
-  .text-green-400 { color: #34d399 !important; }
-  .text-green-500 { color: #0EC963 !important; }
-  .bg-green-500 { background-color: #0EC963 !important; }
-  .border-green-300 { border-color: #6ee7b7 !important; }
-  .border-green-500 { border-color: #0EC963 !important; }
-  .bg-green-200 { background-color: #bbf7d0 !important; }
-  .from-green-600 { --tw-gradient-from: #0EC963 !important; }
-  .to-green-700 { --tw-gradient-to: #0baa54 !important; }
-  .to-emerald-500 { --tw-gradient-to: #0EC963 !important; }
-  .via-green-500 { --tw-gradient-via: #0EC963 !important; }
-  .ring-green-600 { --tw-ring-color: #0EC963 !important; }
-  .focus\:ring-green-600:focus { --tw-ring-color: #0EC963 !important; }
-  .hover\:text-green-700:hover { color: #0baa54 !important; }
-  .hover\:bg-green-100:hover { background-color: #dcfce7 !important; }
-  .hover\:bg-green-600:hover { background-color: #0EC963 !important; }
-  .bg-green-400 { background-color: #34d399 !important; }
-  .text-green-50 { color: #f0fdf4 !important; }
-  .bg-green-300 { background-color: #6ee7b7 !important; }
-  .stroke-green-600 { stroke: #0EC963 !important; }
-  .fill-green-600 { fill: #0EC963 !important; }
+  /* Remap green-600 → Wongnai Orange */
+  .bg-green-600                   { background-color: #FF671F !important; }
+  .hover\:bg-green-700:hover      { background-color: #EB4700 !important; }
+  .bg-green-700                   { background-color: #EB4700 !important; }
+  .text-green-600                 { color: #FF671F !important; }
+  .text-green-700                 { color: #EB4700 !important; }
+  .text-green-800                 { color: #c23a00 !important; }
+  .border-green-600               { border-color: #FF671F !important; }
+  .border-green-200               { border-color: #ffd0b5 !important; }
+  .border-green-100               { border-color: #ffe8d6 !important; }
+  .bg-green-50                    { background-color: #fff7f2 !important; }
+  .bg-green-100                   { background-color: #ffe8d6 !important; }
+  .from-green-50                  { --tw-gradient-from: #fff7f2 !important; }
+  .from-green-700                 { --tw-gradient-from: #EB4700 !important; }
+  .via-green-600                  { --tw-gradient-via: #FF671F !important; }
+  .to-emerald-500                 { --tw-gradient-to: #f7931e !important; }
+  .to-emerald-50                  { --tw-gradient-to: #fff7f2 !important; }
+  .text-green-500                 { color: #FF671F !important; }
+  .text-green-100                 { color: #ffe8d6 !important; }
+  .text-green-200                 { color: #ffd0b5 !important; }
+  .bg-green-600\/10               { background-color: rgba(255,103,31,0.1) !important; }
+  .hover\:bg-green-50:hover       { background-color: #fff7f2 !important; }
+  .hover\:border-green-200:hover  { border-color: #ffd0b5 !important; }
+  .bg-green-50\/30                { background-color: rgba(255,247,242,0.3) !important; }
+  .data-\[state\=active\]\:bg-green-600[data-state=active] { background-color: #FF671F !important; }
+
+  /* Extended green remaps */
+  .text-green-300                 { color: #ffb899 !important; }
+  .text-green-400                 { color: #ff8c55 !important; }
+  .bg-green-500                   { background-color: #FF671F !important; }
+  .border-green-300               { border-color: #ffb899 !important; }
+  .border-green-500               { border-color: #FF671F !important; }
+  .bg-green-200                   { background-color: #ffd0b5 !important; }
+  .from-green-600                 { --tw-gradient-from: #FF671F !important; }
+  .to-green-700                   { --tw-gradient-to: #EB4700 !important; }
+  .via-green-500                  { --tw-gradient-via: #FF671F !important; }
+  .ring-green-600                 { --tw-ring-color: #FF671F !important; }
+  .focus\:ring-green-600:focus    { --tw-ring-color: #FF671F !important; }
+  .hover\:text-green-700:hover    { color: #EB4700 !important; }
+  .hover\:bg-green-100:hover      { background-color: #ffe8d6 !important; }
+  .hover\:bg-green-600:hover      { background-color: #FF671F !important; }
+  .bg-green-400                   { background-color: #ff8c55 !important; }
+  .text-green-50                  { color: #fff7f2 !important; }
+  .bg-green-300                   { background-color: #ffb899 !important; }
+  .stroke-green-600               { stroke: #FF671F !important; }
+  .fill-green-600                 { fill: #FF671F !important; }
 }

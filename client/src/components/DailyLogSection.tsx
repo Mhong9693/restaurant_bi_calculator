@@ -108,16 +108,16 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
 
   const pieData = [
     { name: "ออเดอร์ปกติ", value: monthlyTotals.normalOrders, color: "#9ca3af" },
-    { name: "ไทยช่วยไทยพลัส", value: monthlyTotals.plusOrders, color: "#0EC963" },
+    { name: "ไทยช่วยไทยพลัส", value: monthlyTotals.plusOrders, color: "#FF671F" },
   ];
 
   return (
     <div className="space-y-6">
       {/* Date Picker + Input */}
-      <Card className="border-[#0EC963]/30">
+      <Card className="border-[#FF671F]/30">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2 text-gray-800">
-            <CalendarDays className="w-5 h-5 text-[#0EC963]" />
+            <CalendarDays className="w-5 h-5 text-[#FF671F]" />
             บันทึกออเดอร์รายวัน
           </CardTitle>
         </CardHeader>
@@ -142,7 +142,7 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
               <Label className="text-sm font-medium flex items-center gap-1">
                 <ShoppingBag className="w-3.5 h-3.5 text-gray-500" />
                 ออเดอร์ปกติ
-                <InfoTooltip content="จำนวนออเดอร์ที่ได้รับจาก LINE MAN ช่องทางปกติในวันนี้" />
+                <InfoTooltip content="จำนวนออเดอร์ที่ได้รับจากช่องทางปกติในวันนี้" />
               </Label>
               <Input
                 type="number"
@@ -158,7 +158,7 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm font-medium flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#0EC963]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#FF671F]" />
                 ออเดอร์ไทยช่วยไทยพลัส
                 <InfoTooltip content="จำนวนออเดอร์ที่ได้รับจากโปรแกรมไทยช่วยไทยพลัสในวันนี้" />
               </Label>
@@ -168,9 +168,9 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
                 value={plusOrders || ""}
                 onChange={(e) => setPlusOrders(parseInt(e.target.value) || 0)}
                 placeholder="0"
-                className="text-right font-mono text-lg border-[#0EC963]/50 focus:border-[#0EC963]"
+                className="text-right font-mono text-lg border-[#FF671F]/50 focus:border-[#FF671F]"
               />
-              <p className="text-xs text-[#0aaa54] text-right">
+              <p className="text-xs text-[#EB4700] text-right">
                 กำไร: <span className="font-medium">฿{plusProfit.toFixed(0)}</span>
               </p>
             </div>
@@ -178,20 +178,20 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
 
           {/* Daily Summary */}
           {totalOrders > 0 && (
-            <div className="rounded-xl bg-green-50 border border-[#0EC963]/30 p-4 space-y-2">
+            <div className="rounded-xl bg-orange-50 border border-[#FF671F]/30 p-4 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">ออเดอร์รวมวันนี้</span>
                 <span className="font-bold text-gray-800 num">{totalOrders} ออเดอร์</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">กำไรรวมวันนี้</span>
-                <span className="font-bold text-[#0EC963] num">฿{totalProfit.toFixed(0)}</span>
+                <span className="font-bold text-[#FF671F] num">฿{totalProfit.toFixed(0)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">สัดส่วนออเดอร์พลัส</span>
                 <Badge className={cn(
                   "text-xs",
-                  plusRatio >= 50 ? "bg-[#0EC963] text-white" : "bg-gray-100 text-gray-600"
+                  plusRatio >= 50 ? "bg-[#FF671F] text-white" : "bg-gray-100 text-gray-600"
                 )}>
                   {plusRatio.toFixed(0)}%
                 </Badge>
@@ -202,7 +202,7 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
           <Button
             onClick={handleSave}
             disabled={saveMutation.isPending}
-            className="w-full bg-[#0EC963] hover:bg-[#0aaa54] text-white gap-2"
+            className="w-full bg-[#FF671F] hover:bg-[#EB4700] text-white gap-2"
           >
             <Save className="w-4 h-4" />
             {saveMutation.isPending ? "กำลังบันทึก..." : "บันทึกข้อมูลวันนี้"}
@@ -215,7 +215,7 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2 text-gray-800">
-              <TrendingUp className="w-5 h-5 text-[#0EC963]" />
+              <TrendingUp className="w-5 h-5 text-[#FF671F]" />
               ออเดอร์ย้อนหลัง 14 วัน
             </CardTitle>
           </CardHeader>
@@ -231,7 +231,7 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="ปกติ" fill="#9ca3af" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="พลัส" fill="#0EC963" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="พลัส" fill="#FF671F" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -251,10 +251,10 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
                 <p className="text-xs text-gray-500 mt-1">ออเดอร์ปกติ</p>
                 <p className="text-sm font-semibold text-gray-600 mt-1">฿{monthlyTotals.normalProfit.toFixed(0)}</p>
               </div>
-              <div className="rounded-xl bg-green-50 border border-[#0EC963]/30 p-3 text-center">
-                <p className="text-2xl font-bold text-[#0EC963] num">{monthlyTotals.plusOrders}</p>
-                <p className="text-xs text-[#0aaa54] mt-1">ออเดอร์พลัส</p>
-                <p className="text-sm font-semibold text-[#0aaa54] mt-1">฿{monthlyTotals.plusProfit.toFixed(0)}</p>
+              <div className="rounded-xl bg-orange-50 border border-[#FF671F]/30 p-3 text-center">
+                <p className="text-2xl font-bold text-[#FF671F] num">{monthlyTotals.plusOrders}</p>
+                <p className="text-xs text-[#EB4700] mt-1">ออเดอร์พลัส</p>
+                <p className="text-sm font-semibold text-[#EB4700] mt-1">฿{monthlyTotals.plusProfit.toFixed(0)}</p>
               </div>
             </div>
 
@@ -286,12 +286,12 @@ export function DailyLogSection({ sessionId, normalGpPerOrder, plusGpPerOrder }:
                 <p className="text-sm text-gray-600">สัดส่วนออเดอร์ไทยช่วยไทยพลัส</p>
                 <p className={cn(
                   "text-2xl font-bold num mt-1",
-                  plusMonthlyRatio >= 50 ? "text-[#0EC963]" : "text-gray-600"
+                  plusMonthlyRatio >= 50 ? "text-[#FF671F]" : "text-gray-600"
                 )}>
                   {plusMonthlyRatio.toFixed(1)}%
                 </p>
                 {plusMonthlyRatio >= 50 ? (
-                  <p className="text-xs text-[#0aaa54] mt-1">🎉 ออเดอร์พลัสมากกว่าครึ่ง — ดีมาก!</p>
+                  <p className="text-xs text-[#EB4700] mt-1">🎉 ออเดอร์พลัสมากกว่าครึ่ง — ดีมาก!</p>
                 ) : (
                   <p className="text-xs text-gray-500 mt-1">💡 เพิ่มออเดอร์พลัสเพื่อกำไรที่สูงขึ้น</p>
                 )}

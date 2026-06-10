@@ -86,3 +86,12 @@
 - [x] เพิ่ม Banner/CTA สมัครไทยช่วยไทยพลัส พร้อม logo และลิงก์ https://bit.ly/4gbvUY3
 - [x] อัปเดต DB schema: RENAME normalCommission→normalGpPercent, เพิ่ม normalVatOnGp, normalTotalCost, plusVatOnGp, plusTotalCost
 - [x] อัปเดต tests: 32 tests passing
+
+## Wongnai CI Rebrand
+- [x] อัปโหลด Wongnai logo ไปยัง webdev static assets
+- [x] ดึง Wongnai brand colors จาก Presentation (Orange #FF671F, Dark Orange #EB4700, Blue #003DA5)
+- [x] ปรับ theme colors ใน index.css ให้เป็น Wongnai CI
+- [x] เปลี่ยน logo ใน navbar/header เป็น Wongnai logo
+- [x] เปลี่ยน app title เป็น Wongnai GP Calculator
+- [x] เปลี่ยน hardcoded green (#0EC963, #0aaa54) ทั้งเว็บให้เป็น Wongnai orange (DailyLog, StoreDashboard, MonthlyOverview, PromotionSimulator, MenuAnalysis)
+- [x] ยกเว้นส่วน Banner ไทยช่วยไทยพลัส ให้คงสีเขียวเหมือนเดิม

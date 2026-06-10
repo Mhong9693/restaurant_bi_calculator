@@ -284,7 +284,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
             "gap-2 transition-all",
             isSaved
               ? "bg-gray-100 text-gray-500 hover:bg-gray-100"
-              : "bg-[#0EC963] hover:bg-[#0aaa54] text-white"
+              : "bg-[#FF671F] hover:bg-[#EB4700] text-white"
           )}
         >
           <Save className="w-4 h-4" />
@@ -297,7 +297,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
       {/* ── Comparison Banner ── */}
       <Card className={cn(
         "border-2",
-        results.diffProfit > 0 ? "border-[#0EC963] bg-green-50"
+        results.diffProfit > 0 ? "border-[#FF671F] bg-orange-50"
           : results.diffProfit < 0 ? "border-red-400 bg-red-50"
           : "border-gray-300 bg-gray-50"
       )}>
@@ -305,7 +305,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
               {results.diffProfit > 0 ? (
-                <TrendingUp className="w-8 h-8 text-[#0EC963]" />
+                <TrendingUp className="w-8 h-8 text-[#FF671F]" />
               ) : results.diffProfit < 0 ? (
                 <TrendingDown className="w-8 h-8 text-red-500" />
               ) : (
@@ -319,7 +319,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
             <div className="text-right">
               <p className={cn(
                 "text-2xl font-bold num",
-                results.diffProfit > 0 ? "text-[#0EC963]"
+                results.diffProfit > 0 ? "text-[#FF671F]"
                   : results.diffProfit < 0 ? "text-red-600"
                   : "text-gray-600"
               )}>
@@ -327,7 +327,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
               </p>
               <p className={cn(
                 "text-sm font-medium",
-                results.diffProfit > 0 ? "text-[#0aaa54]"
+                results.diffProfit > 0 ? "text-[#EB4700]"
                   : results.diffProfit < 0 ? "text-red-500"
                   : "text-gray-500"
               )}>
@@ -336,7 +336,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
             </div>
           </div>
           {results.diffProfit > 0 && (
-            <p className="text-sm text-[#0aaa54] mt-3 pt-3 border-t border-[#0EC963]/30">
+            <p className="text-sm text-[#EB4700] mt-3 pt-3 border-t border-[#FF671F]/30">
               💡 ทุก 100 ออเดอร์ที่เป็นไทยช่วยไทยพลัส คุณได้กำไรเพิ่มขึ้น{" "}
               <strong>฿{(results.diffProfit * 100).toFixed(0)}</strong>
             </p>
@@ -391,13 +391,13 @@ function ChannelCard({
   };
 
   return (
-    <Card className={cn("border-2", isGreen ? "border-[#0EC963]" : "border-gray-200")}>
+    <Card className={cn("border-2", isGreen ? "border-[#003DA5]" : "border-gray-200")}>
       <CardHeader className="pb-3">
-        <CardTitle className={cn("text-base flex items-center gap-2", isGreen ? "text-[#0aaa54]" : "text-gray-700")}>
-          <div className={cn("w-3 h-3 rounded-full", isGreen ? "bg-[#0EC963]" : "bg-gray-400")} />
+        <CardTitle className={cn("text-base flex items-center gap-2", isGreen ? "text-[#003DA5]" : "text-gray-700")}>
+          <div className={cn("w-3 h-3 rounded-full", isGreen ? "bg-[#003DA5]" : "bg-gray-400")} />
           {title}
           {isGreen && (
-            <Badge className="bg-[#0EC963] text-white text-xs ml-auto">โปรแกรมพิเศษ</Badge>
+            <Badge className="bg-[#003DA5] text-white text-xs ml-auto">โปรแกรมพิเศษ</Badge>
           )}
         </CardTitle>
         <p className="text-xs text-gray-400 -mt-1">{subtitle}</p>
@@ -478,19 +478,19 @@ function ChannelCard({
         {/* Result Summary */}
         <div className={cn(
           "rounded-lg px-3 py-3 space-y-2 border",
-          isGreen ? "bg-green-50 border-[#0EC963]/40" : "bg-gray-50 border-gray-200"
+          isGreen ? "bg-blue-50 border-[#003DA5]/30" : "bg-gray-50 border-gray-200"
         )}>
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">รายรับสุทธิ</span>
             <span className="text-sm font-semibold num text-gray-800">฿{netRev.toFixed(2)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className={cn("text-xs font-bold", isGreen ? "text-[#0aaa54]" : "text-gray-700")}>
+            <span className={cn("text-xs font-bold", isGreen ? "text-[#003DA5]" : "text-gray-700")}>
               กำไรต่อออเดอร์
             </span>
             <span className={cn(
               "text-lg font-extrabold num",
-              profit > 0 ? (isGreen ? "text-[#0EC963]" : "text-gray-800") : "text-red-600"
+              profit > 0 ? (isGreen ? "text-[#003DA5]" : "text-gray-800") : "text-red-600"
             )}>
               ฿{profit.toFixed(2)}
             </span>
@@ -500,7 +500,7 @@ function ChannelCard({
             <div className="flex items-center gap-2">
               <span className={cn(
                 "text-sm font-bold num",
-                status === "healthy" ? "text-[#0EC963]" : status === "warning" ? "text-yellow-600" : "text-red-600"
+                status === "healthy" ? "text-[#FF671F]" : status === "warning" ? "text-yellow-600" : "text-red-600"
               )}>
                 {margin.toFixed(1)}%
               </span>
@@ -540,7 +540,7 @@ function ChannelCard({
         {totalCost > 0 && recPrice > 0 && (
           <div className={cn(
             "rounded-lg px-3 py-2 text-xs border",
-            isGreen ? "bg-green-50 border-[#0EC963]/30 text-[#0aaa54]" : "bg-blue-50 border-blue-200 text-blue-700"
+            isGreen ? "bg-blue-50 border-[#003DA5]/30 text-[#003DA5]" : "bg-orange-50 border-[#FF671F]/30 text-[#EB4700]"
           )}>
             <span className="font-medium">ราคาขายต่ำสุดที่แนะนำ (Margin ≥ {DEFAULT_TARGET_MARGIN}%): </span>
             <span className="font-bold num">฿{recPrice}</span>
