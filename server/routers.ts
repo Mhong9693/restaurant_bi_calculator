@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { notifyOwner } from "./_core/notification";
+import { appendLeadToSheet } from "./googleSheets";
 import { createLead, getLeadByPhone, getAllLeads, getMenuItemsBySession, createMenuItem, deleteMenuItem, clearMenuItemsBySession } from "./db";
 import { z } from "zod";
 
@@ -50,6 +51,18 @@ export const appRouter = router({
           foodCategory: input.foodCategory,
           pdpaConsent: input.pdpaConsent,
         });
+        // Sync to Google Sheets (non-fatal)
+        try {
+          await appendLeadToSheet({
+            storeName: input.storeName,
+            phone: input.phone,
+            province: input.province,
+            foodCategory: input.foodCategory,
+            pdpaConsent: input.pdpaConsent,
+          });
+        } catch (e) {
+          console.warn("[GoogleSheets] Sync failed (non-fatal):", e);
+        }
         // Notify owner
         try {
           await notifyOwner({
