@@ -41,39 +41,40 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* LINE MAN Green: #0EC963 = oklch(0.74 0.21 152) */
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.99 0.005 150);
-  --foreground: oklch(0.15 0.01 150);
+  --background: oklch(0.99 0.003 152);
+  --foreground: oklch(0.14 0.01 152);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.01 150);
+  --card-foreground: oklch(0.14 0.01 152);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.01 150);
-  --primary: oklch(0.50 0.17 150);
+  --popover-foreground: oklch(0.14 0.01 152);
+  --primary: oklch(0.74 0.21 152);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0.02 150);
-  --secondary-foreground: oklch(0.30 0.10 150);
-  --muted: oklch(0.96 0.01 150);
-  --muted-foreground: oklch(0.55 0.03 150);
-  --accent: oklch(0.94 0.04 150);
-  --accent-foreground: oklch(0.30 0.10 150);
+  --secondary: oklch(0.96 0.02 152);
+  --secondary-foreground: oklch(0.28 0.10 152);
+  --muted: oklch(0.96 0.01 152);
+  --muted-foreground: oklch(0.54 0.03 152);
+  --accent: oklch(0.94 0.05 152);
+  --accent-foreground: oklch(0.28 0.10 152);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.02 150);
-  --input: oklch(0.92 0.02 150);
-  --ring: oklch(0.50 0.17 150);
-  --chart-1: oklch(0.50 0.17 150);
-  --chart-2: oklch(0.65 0.15 150);
-  --chart-3: oklch(0.75 0.12 150);
+  --border: oklch(0.91 0.025 152);
+  --input: oklch(0.91 0.025 152);
+  --ring: oklch(0.74 0.21 152);
+  --chart-1: oklch(0.74 0.21 152);
+  --chart-2: oklch(0.62 0.18 152);
+  --chart-3: oklch(0.82 0.14 152);
   --chart-4: oklch(0.72 0.18 60);
   --chart-5: oklch(0.60 0.15 30);
-  --sidebar: oklch(0.97 0.01 150);
-  --sidebar-foreground: oklch(0.15 0.01 150);
-  --sidebar-primary: oklch(0.50 0.17 150);
+  --sidebar: oklch(0.97 0.01 152);
+  --sidebar-foreground: oklch(0.14 0.01 152);
+  --sidebar-primary: oklch(0.74 0.21 152);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.04 150);
-  --sidebar-accent-foreground: oklch(0.30 0.10 150);
-  --sidebar-border: oklch(0.92 0.02 150);
-  --sidebar-ring: oklch(0.50 0.17 150);
+  --sidebar-accent: oklch(0.94 0.05 152);
+  --sidebar-accent-foreground: oklch(0.28 0.10 152);
+  --sidebar-border: oklch(0.91 0.025 152);
+  --sidebar-ring: oklch(0.74 0.21 152);
 }
 
 @layer base {
@@ -136,4 +137,65 @@ button:active {
   border-radius: 8px !important;
   border: 1px solid oklch(0.92 0.02 150) !important;
   box-shadow: 0 4px 16px -2px rgba(0,0,0,0.08) !important;
+}
+
+/* LINE MAN Brand Color Overrides - #0EC963 */
+/* Override Tailwind green-* with LINE MAN exact brand color */
+@layer utilities {
+  .bg-lineman { background-color: #0EC963; }
+  .text-lineman { color: #0EC963; }
+  .border-lineman { border-color: #0EC963; }
+
+  /* Remap green-600 → #0EC963 */
+  .bg-green-600 { background-color: #0EC963 !important; }
+  .hover\:bg-green-700:hover { background-color: #0baa54 !important; }
+  .bg-green-700 { background-color: #0baa54 !important; }
+  .text-green-600 { color: #0EC963 !important; }
+  .text-green-700 { color: #0baa54 !important; }
+  .text-green-800 { color: #097a3d !important; }
+  .border-green-600 { border-color: #0EC963 !important; }
+  .border-green-200 { border-color: #a7f3d0 !important; }
+  .border-green-100 { border-color: #d1fae5 !important; }
+  .bg-green-50 { background-color: #f0fdf4 !important; }
+  .bg-green-100 { background-color: #dcfce7 !important; }
+  .from-green-50 { --tw-gradient-from: #f0fdf4 !important; }
+  .from-green-700 { --tw-gradient-from: #0baa54 !important; }
+  .via-green-600 { --tw-gradient-via: #0EC963 !important; }
+  .to-emerald-500 { --tw-gradient-to: #10b981 !important; }
+  .to-emerald-50 { --tw-gradient-to: #ecfdf5 !important; }
+  .text-green-500 { color: #0EC963 !important; }
+  .text-green-100 { color: #dcfce7 !important; }
+  .text-green-200 { color: #bbf7d0 !important; }
+  .bg-green-600\/10 { background-color: rgba(14, 201, 99, 0.1) !important; }
+  .hover\:bg-green-50:hover { background-color: #f0fdf4 !important; }
+  .hover\:border-green-200:hover { border-color: #a7f3d0 !important; }
+  .bg-gradient-to-br.from-green-50 { background-image: linear-gradient(to bottom right, #f0fdf4, #fff, #ecfdf5) !important; }
+  .from-green-50.via-white.to-emerald-50 { background-image: linear-gradient(to bottom right, #f0fdf4, #fff, #ecfdf5) !important; }
+  .bg-green-50\/30 { background-color: rgba(240, 253, 244, 0.3) !important; }
+  .data-\[state\=active\]\:bg-green-600[data-state=active] { background-color: #0EC963 !important; }
+}
+
+/* LINE MAN Green additional overrides */
+@layer utilities {
+  .text-green-300 { color: #6ee7b7 !important; }
+  .text-green-400 { color: #34d399 !important; }
+  .text-green-500 { color: #0EC963 !important; }
+  .bg-green-500 { background-color: #0EC963 !important; }
+  .border-green-300 { border-color: #6ee7b7 !important; }
+  .border-green-500 { border-color: #0EC963 !important; }
+  .bg-green-200 { background-color: #bbf7d0 !important; }
+  .from-green-600 { --tw-gradient-from: #0EC963 !important; }
+  .to-green-700 { --tw-gradient-to: #0baa54 !important; }
+  .to-emerald-500 { --tw-gradient-to: #0EC963 !important; }
+  .via-green-500 { --tw-gradient-via: #0EC963 !important; }
+  .ring-green-600 { --tw-ring-color: #0EC963 !important; }
+  .focus\:ring-green-600:focus { --tw-ring-color: #0EC963 !important; }
+  .hover\:text-green-700:hover { color: #0baa54 !important; }
+  .hover\:bg-green-100:hover { background-color: #dcfce7 !important; }
+  .hover\:bg-green-600:hover { background-color: #0EC963 !important; }
+  .bg-green-400 { background-color: #34d399 !important; }
+  .text-green-50 { color: #f0fdf4 !important; }
+  .bg-green-300 { background-color: #6ee7b7 !important; }
+  .stroke-green-600 { stroke: #0EC963 !important; }
+  .fill-green-600 { fill: #0EC963 !important; }
 }

@@ -20,8 +20,8 @@ interface DashboardProps {
 }
 
 const COLORS = {
-  profit: "#16a34a",
-  profitThaiPlus: "#22c55e",
+  profit: "#0baa54",
+  profitThaiPlus: "#0EC963",
   cost: "#f59e0b",
   commission: "#6b7280",
   delivery: "#3b82f6",
