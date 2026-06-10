@@ -2,27 +2,121 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import { notifyOwner } from "./_core/notification";
+import { createLead, getLeadByPhone, getAllLeads, getMenuItemsBySession, createMenuItem, deleteMenuItem, clearMenuItemsBySession } from "./db";
+import { z } from "zod";
+
+const leadSchema = z.object({
+  storeName: z.string().min(1, "กรุณากรอกชื่อร้าน"),
+  phone: z.string().min(9, "กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง"),
+  province: z.string().min(1, "กรุณาเลือกจังหวัด"),
+  foodCategory: z.string().min(1, "กรุณาเลือกประเภทอาหาร"),
+  pdpaConsent: z.boolean().refine(v => v === true, "กรุณายินยอมเงื่อนไข PDPA"),
+});
+
+const menuItemSchema = z.object({
+  sessionId: z.string().min(1),
+  name: z.string().min(1, "กรุณากรอกชื่อเมนู"),
+  sellingPrice: z.number().positive("ราคาขายต้องมากกว่า 0"),
+  foodCost: z.number().min(0, "ต้นทุนวัตถุดิบต้องไม่ติดลบ"),
+  packagingCost: z.number().min(0).default(0),
+  otherCost: z.number().min(0).default(0),
+});
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  leads: router({
+    submit: publicProcedure
+      .input(leadSchema)
+      .mutation(async ({ input }) => {
+        // Check if phone already registered
+        const existing = await getLeadByPhone(input.phone);
+        if (existing) {
+          return { success: true, alreadyExists: true, message: "เบอร์โทรนี้ลงทะเบียนแล้ว" };
+        }
+        await createLead({
+          storeName: input.storeName,
+          phone: input.phone,
+          province: input.province,
+          foodCategory: input.foodCategory,
+          pdpaConsent: input.pdpaConsent,
+        });
+        // Notify owner
+        try {
+          await notifyOwner({
+            title: `🎉 Lead ใหม่: ${input.storeName}`,
+            content: `ร้าน: ${input.storeName}\nเบอร์: ${input.phone}\nจังหวัด: ${input.province}\nประเภทอาหาร: ${input.foodCategory}\nเวลา: ${new Date().toLocaleString("th-TH")}`,
+          });
+        } catch (e) {
+          console.warn("[Notification] Failed to notify owner:", e);
+        }
+        return { success: true, alreadyExists: false, message: "ลงทะเบียนสำเร็จ! ปลดล็อกฟีเจอร์ขั้นสูงแล้ว" };
+      }),
+
+    checkAccess: publicProcedure
+      .input(z.object({ phone: z.string() }))
+      .query(async ({ input }) => {
+        if (!input.phone) return { hasAccess: false };
+        const lead = await getLeadByPhone(input.phone);
+        return { hasAccess: !!lead, lead: lead ?? null };
+      }),
+
+    list: publicProcedure.query(async () => {
+      return getAllLeads();
+    }),
+  }),
+
+  menuItems: router({
+    list: publicProcedure
+      .input(z.object({ sessionId: z.string() }))
+      .query(async ({ input }) => {
+        const items = await getMenuItemsBySession(input.sessionId);
+        return items.map(item => ({
+          ...item,
+          sellingPrice: Number(item.sellingPrice),
+          foodCost: Number(item.foodCost),
+          packagingCost: Number(item.packagingCost),
+          otherCost: Number(item.otherCost),
+        }));
+      }),
+
+    add: publicProcedure
+      .input(menuItemSchema)
+      .mutation(async ({ input }) => {
+        await createMenuItem({
+          sessionId: input.sessionId,
+          name: input.name,
+          sellingPrice: String(input.sellingPrice),
+          foodCost: String(input.foodCost),
+          packagingCost: String(input.packagingCost),
+          otherCost: String(input.otherCost),
+        });
+        return { success: true };
+      }),
+
+    remove: publicProcedure
+      .input(z.object({ id: z.number(), sessionId: z.string() }))
+      .mutation(async ({ input }) => {
+        await deleteMenuItem(input.id, input.sessionId);
+        return { success: true };
+      }),
+
+    clear: publicProcedure
+      .input(z.object({ sessionId: z.string() }))
+      .mutation(async ({ input }) => {
+        await clearMenuItemsBySession(input.sessionId);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
