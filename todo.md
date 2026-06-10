@@ -66,3 +66,23 @@
 - [x] อัปเดต GPSettings type: เปลี่ยน normalGpPercent/plusGpPercent เป็น normalCommission/plusCommission
 - [x] อัปเดต database schema: RENAME normalGpPercent→normalCommission, plusGpPercent→plusCommission
 - [x] อัปเดต tests ให้ครอบคลุมสูตรใหม่ (29 tests passing)
+
+## ปรับ GPCalculator ตาม Excel Logic (v3)
+
+- [ ] GPCalculator: เปลี่ยน input เป็น GP% แพลตฟอร์ม, VAT บน GP%, ต้นทุนรวม/ออเดอร์
+- [ ] GPCalculator: คำนวณ "รายรับสุทธิหลัง GP" = ราคาขาย × (1 - GP% × (1 + VAT%))
+- [ ] GPCalculator: คำนวณ "กำไรหลัง GP" = รายรับสุทธิหลัง GP - ต้นทุนรวม
+- [ ] GPCalculator: แสดง Margin หลัง GP = กำไรหลัง GP / ราคาขาย × 100
+- [ ] GPCalculator: แยก 2 ช่อง — ปกติ (GP 30%) และ ไทยช่วยไทยพลัส (GP ต่ำกว่า)
+- [ ] อัปเดต GPSettings type และ DB schema ให้ตรงกับ fields ใหม่
+- [ ] อัปเดต tests ให้ครอบคลุมสูตรใหม่
+
+## ปรับ GP Formula (v4) + Banner ไทยช่วยไทยพลัส
+
+- [x] อัปโหลด logo ไทยช่วยไทยพลัส ไปยัง webdev static assets
+- [x] แก้สูตร GP ใน shared/gpCalculations.ts (calcGPOrder สูตรถูกต้อง)
+- [x] ปรับ GPCalculator UI: input = GP%, VAT%, ต้นทุนรวม/ออเดอร์, ราคาขาย
+- [x] แสดงผลลัพธ์: ค่า GP, VAT บน GP, รายรับสุทธิ, กำไรต่อออเดอร์, Margin%
+- [x] เพิ่ม Banner/CTA สมัครไทยช่วยไทยพลัส พร้อม logo และลิงก์ https://bit.ly/4gbvUY3
+- [x] อัปเดต DB schema: RENAME normalCommission→normalGpPercent, เพิ่ม normalVatOnGp, normalTotalCost, plusVatOnGp, plusTotalCost
+- [x] อัปเดต tests: 32 tests passing

@@ -18,21 +18,32 @@ const GATED_TABS = ["breakeven", "menu", "monthly", "promotion", "daily"];
 
 const DEFAULT_SETTINGS: GPSettings = {
   normalAvgPrice: 150,
-  normalCommission: 30,
+  normalGpPercent: 30,
+  normalVatOnGp: 7,
+  normalTotalCost: 0,
   plusAvgPrice: 150,
-  plusCommission: 23,
+  plusGpPercent: 23,
+  plusVatOnGp: 7,
+  plusTotalCost: 0,
 };
 
-// GP% สุทธิ = (1 - commission% × 1.07) × 100
-// ปกติ: (1 - 0.30 × 1.07) × 100 = 67.9%  → กำไร = 150 × 67.9% = 101.85
-// พลัส: (1 - 0.23 × 1.07) × 100 = 75.39% → กำไร = 150 × 75.39% = 113.09
+// ปกติ GP 30% + VAT 7%: ราคา 150 → GP=45, VAT=3.15 → รายรับ=101.85
+// พลัส GP 23% + VAT 7%: ราคา 150 → GP=34.5, VAT=2.415 → รายรับ=113.085
 const DEFAULT_RESULTS: GPResults = {
-  normalGpPerOrder: 101.85,
-  plusGpPerOrder: 113.09,
-  normalNetGpPercent: 67.9,
-  plusNetGpPercent: 75.39,
-  diffPerOrder: 11.24,
-  diffPercent: 7.49,
+  normalNetRevenue: 101.85,
+  normalProfitPerOrder: 101.85,
+  normalMarginPercent: 67.9,
+  normalGpAmount: 45,
+  normalVatAmount: 3.15,
+  normalStatus: "warning",
+  plusNetRevenue: 113.085,
+  plusProfitPerOrder: 113.085,
+  plusMarginPercent: 75.39,
+  plusGpAmount: 34.5,
+  plusVatAmount: 2.415,
+  plusStatus: "healthy",
+  diffProfit: 11.235,
+  diffMargin: 7.49,
 };
 
 export default function Home() {
@@ -129,11 +140,11 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
               <div className="bg-white/15 rounded-xl p-3 text-center backdrop-blur-sm">
-                <p className="text-2xl font-bold num">฿{gpResults.normalGpPerOrder.toFixed(0)}</p>
+                <p className="text-2xl font-bold num">฿{gpResults.normalProfitPerOrder.toFixed(0)}</p>
                 <p className="text-xs text-green-100 mt-0.5">กำไร/ออเดอร์ปกติ</p>
               </div>
               <div className="bg-white/25 rounded-xl p-3 text-center backdrop-blur-sm border border-white/30">
-                <p className="text-2xl font-bold num">฿{gpResults.plusGpPerOrder.toFixed(0)}</p>
+                <p className="text-2xl font-bold num">฿{gpResults.plusProfitPerOrder.toFixed(0)}</p>
                 <p className="text-xs text-green-100 mt-0.5">กำไร/ออเดอร์พลัส</p>
               </div>
             </div>
@@ -182,11 +193,11 @@ export default function Home() {
           <TabsContent value="dashboard" className="mt-0">
             <StoreDashboard
               normalAvgPrice={gpSettings.normalAvgPrice}
-              normalGpPercent={gpResults.normalNetGpPercent}
+              normalGpPercent={gpResults.normalMarginPercent}
               plusAvgPrice={gpSettings.plusAvgPrice}
-              plusGpPercent={gpResults.plusNetGpPercent}
-              normalGpPerOrder={gpResults.normalGpPerOrder}
-              plusGpPerOrder={gpResults.plusGpPerOrder}
+              plusGpPercent={gpResults.plusMarginPercent}
+              normalGpPerOrder={gpResults.normalProfitPerOrder}
+              plusGpPerOrder={gpResults.plusProfitPerOrder}
             />
           </TabsContent>
 
@@ -195,8 +206,8 @@ export default function Home() {
             <div className="max-w-2xl mx-auto">
               <DailyLogSection
                 sessionId={sessionId}
-                normalGpPerOrder={gpResults.normalGpPerOrder}
-                plusGpPerOrder={gpResults.plusGpPerOrder}
+                normalGpPerOrder={gpResults.normalProfitPerOrder}
+                plusGpPerOrder={gpResults.plusProfitPerOrder}
               />
             </div>
           </TabsContent>
@@ -205,8 +216,8 @@ export default function Home() {
           <TabsContent value="monthly" className="mt-0">
             <MonthlyOverviewSection
               sessionId={sessionId}
-              normalGpPerOrder={gpResults.normalGpPerOrder}
-              plusGpPerOrder={gpResults.plusGpPerOrder}
+              normalGpPerOrder={gpResults.normalProfitPerOrder}
+              plusGpPerOrder={gpResults.plusProfitPerOrder}
               normalAvgPrice={gpSettings.normalAvgPrice}
               plusAvgPrice={gpSettings.plusAvgPrice}
             />
@@ -215,7 +226,7 @@ export default function Home() {
           {/* Break-even Tab */}
           <TabsContent value="breakeven" className="mt-0">
             <div className="max-w-2xl mx-auto">
-              <BreakEvenSection avgGrossProfitPerOrder={gpResults.plusGpPerOrder} />
+              <BreakEvenSection avgGrossProfitPerOrder={gpResults.plusProfitPerOrder} />
             </div>
           </TabsContent>
 
@@ -231,7 +242,7 @@ export default function Home() {
             <div className="max-w-2xl mx-auto">
               <PromotionSimulator
                 sellingPrice={gpSettings.normalAvgPrice}
-                totalVariableCost={gpSettings.normalAvgPrice * (1 - gpResults.normalNetGpPercent / 100)}
+                totalVariableCost={gpSettings.normalTotalCost}
               />
             </div>
           </TabsContent>

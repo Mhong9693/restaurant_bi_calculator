@@ -1,100 +1,185 @@
-// GP Calculation constants for LINE MAN Thailand
+// GP Calculation — LINE MAN / Delivery Platform
+//
+// GP% = ค่า Commission ที่แพลตฟอร์มหักจากร้านค้า คำนวณจากราคาขายก่อนส่วนลด
+//
+// สูตรหลัก:
+//   ค่า GP        = ราคาขาย (ก่อนส่วนลด) × GP%
+//   VAT บน GP     = ค่า GP × VAT%
+//   รายรับสุทธิ   = ราคาขายหลังส่วนลด − ค่า GP − VAT บน GP − ค่าส่งที่ร้านช่วยออก
+//   กำไรต่อออเดอร์ = รายรับสุทธิ − ต้นทุนรวม
+//   Margin%       = กำไรต่อออเดอร์ ÷ ราคาขายหลังส่วนลด × 100
 
 // -------------------------------------------------------
-// Commission-based formula (ตาม Wongnai / LINE MAN)
+// Default constants
 // -------------------------------------------------------
-// GP% สุทธิ = (1 - commission% × 1.07) × 100
-// กำไรต่อออเดอร์ = ราคาขาย × GP% สุทธิ / 100
-// -------------------------------------------------------
+export const DEFAULT_NORMAL_GP_PERCENT = 30;   // GP% แพลตฟอร์มปกติ
+export const DEFAULT_PLUS_GP_PERCENT = 23;     // GP% ไทยช่วยไทยพลัส
+export const DEFAULT_VAT_ON_GP = 7;            // VAT บน GP (%)
+export const DEFAULT_TARGET_MARGIN = 15;       // เป้า Margin หลัง GP (%)
+export const DEFAULT_PRICE_STEP = 5;           // ปัดราคาขึ้นทีละ (บาท)
 
+// Legacy constants (kept for backward compat with menu analysis)
+export const GRAB_NORMAL_COMMISSION = 0.30;
+export const GRAB_THAI_PLUS_COMMISSION = 0.23;
+export const GRAB_VAT_ON_GP = 0.07;
+export const GRAB_DELIVERY_SUBSIDY_DEFAULT = 0;
 export const VAT_ON_COMMISSION = 1.07;
 
+// -------------------------------------------------------
+// Core GP formula
+// -------------------------------------------------------
+
+export interface GPOrderInput {
+  /** ราคาขายก่อนส่วนลด (บาท) */
+  sellingPrice: number;
+  /** GP% ที่แพลตฟอร์มหัก เช่น 30 หรือ 23 */
+  gpPercent: number;
+  /** VAT บน GP (%) ปกติ 7 ถ้าแพลตฟอร์มไม่คิดให้ใส่ 0 */
+  vatOnGpPercent: number;
+  /** ส่วนลดที่ร้านออกเอง (บาท) ถ้าไม่มีใส่ 0 */
+  restaurantDiscount?: number;
+  /** ค่าส่งที่ร้านช่วยออก (บาท) ถ้าไม่มีใส่ 0 */
+  deliverySubsidy?: number;
+  /** ต้นทุนรวมต่อออเดอร์ = Food Cost + บรรจุภัณฑ์ + อื่นๆ (บาท) */
+  totalCostPerOrder: number;
+}
+
+export interface GPOrderResult {
+  /** ราคาขายหลังส่วนลด */
+  priceAfterDiscount: number;
+  /** ค่า GP (คำนวณจากราคาก่อนส่วนลด) */
+  gpAmount: number;
+  /** VAT บน GP */
+  vatOnGpAmount: number;
+  /** ค่า GP รวม VAT */
+  gpPlusVat: number;
+  /** รายรับสุทธิที่ร้านได้รับ */
+  netRevenue: number;
+  /** กำไรต่อออเดอร์ */
+  profitPerOrder: number;
+  /** Margin หลังหัก GP (%) */
+  marginPercent: number;
+  /** สถานะกำไร */
+  status: "healthy" | "warning" | "danger";
+}
+
+export function calcGPOrder(input: GPOrderInput): GPOrderResult {
+  const {
+    sellingPrice,
+    gpPercent,
+    vatOnGpPercent,
+    restaurantDiscount = 0,
+    deliverySubsidy = 0,
+    totalCostPerOrder,
+  } = input;
+
+  const priceAfterDiscount = sellingPrice - restaurantDiscount;
+
+  // GP คำนวณจากราคาก่อนส่วนลดเสมอ
+  const gpAmount = sellingPrice * (gpPercent / 100);
+  const vatOnGpAmount = gpAmount * (vatOnGpPercent / 100);
+  const gpPlusVat = gpAmount + vatOnGpAmount;
+
+  // รายรับสุทธิ = ราคาหลังส่วนลด − GP − VAT บน GP − ค่าส่งที่ร้านช่วยออก
+  const netRevenue = priceAfterDiscount - gpPlusVat - deliverySubsidy;
+
+  const profitPerOrder = netRevenue - totalCostPerOrder;
+
+  const marginPercent =
+    priceAfterDiscount > 0 ? (profitPerOrder / priceAfterDiscount) * 100 : 0;
+
+  const status: GPOrderResult["status"] =
+    marginPercent >= 30 ? "healthy" : marginPercent >= 15 ? "warning" : "danger";
+
+  return {
+    priceAfterDiscount,
+    gpAmount,
+    vatOnGpAmount,
+    gpPlusVat,
+    netRevenue,
+    profitPerOrder,
+    marginPercent,
+    status,
+  };
+}
+
 /**
- * คำนวณ GP% สุทธิที่ร้านได้รับหลังหัก Commission + VAT
- * @param commissionPercent - Commission% ที่ LINE MAN หัก เช่น 30 หรือ 23
- * @returns GP% สุทธิ เช่น 67.9 หรือ 75.39
+ * คำนวณราคาขายต่ำสุดที่ควรตั้ง เพื่อให้ได้ Margin ตามเป้า
+ * แก้สมการ: (price - gp×price×(1+vat) - cost) / price = targetMargin/100
+ * → price × (1 - gp×(1+vat) - targetMargin/100) = cost
+ * → price = cost / (1 - gp×(1+vat) - targetMargin/100)
  */
+export function calcRecommendedPrice(
+  totalCostPerOrder: number,
+  gpPercent: number,
+  vatOnGpPercent: number,
+  targetMarginPercent: number,
+  priceStep: number = DEFAULT_PRICE_STEP
+): number {
+  const factor =
+    1 - (gpPercent / 100) * (1 + vatOnGpPercent / 100) - targetMarginPercent / 100;
+  if (factor <= 0) return 0;
+  const rawPrice = totalCostPerOrder / factor;
+  if (priceStep > 0) {
+    return Math.ceil(rawPrice / priceStep) * priceStep;
+  }
+  return Math.ceil(rawPrice);
+}
+
+// -------------------------------------------------------
+// Legacy calcNetGpPercent / calcGpPerOrder (kept for compat)
+// -------------------------------------------------------
 export function calcNetGpPercent(commissionPercent: number): number {
   return (1 - (commissionPercent / 100) * VAT_ON_COMMISSION) * 100;
 }
 
-/**
- * คำนวณกำไรต่อออเดอร์ (บาท)
- * @param avgPrice - ราคาขายเฉลี่ยต่อออเดอร์
- * @param commissionPercent - Commission% ที่ LINE MAN หัก
- */
 export function calcGpPerOrder(avgPrice: number, commissionPercent: number): number {
   return avgPrice * calcNetGpPercent(commissionPercent) / 100;
 }
 
-export const GRAB_NORMAL_COMMISSION = 0.30; // 30% normal commission
-export const GRAB_THAI_PLUS_COMMISSION = 0.23; // 23% LINE MAN โปรแกรมพิเศษ commission
-export const GRAB_VAT_ON_GP = 0.07; // 7% VAT on GP
-export const GRAB_DELIVERY_SUBSIDY_DEFAULT = 0; // default delivery subsidy by restaurant
-
+// -------------------------------------------------------
+// Legacy GPInput/GPResult (kept for menu analysis)
+// -------------------------------------------------------
 export interface GPInput {
   sellingPrice: number;
   foodCost: number;
   packagingCost: number;
   otherCost: number;
-  restaurantDiscount: number; // discount restaurant absorbs
-  deliverySubsidy: number; // delivery fee restaurant subsidizes
+  restaurantDiscount: number;
+  deliverySubsidy: number;
 }
 
 export interface GPResult {
-  // Revenue after platform commission
   netRevenue: number;
   netRevenueThaiPlus: number;
-
-  // Total variable cost
   totalVariableCost: number;
-
-  // Gross Profit
   grossProfit: number;
   grossProfitThaiPlus: number;
-
-  // GP Margin %
   gpMargin: number;
   gpMarginThaiPlus: number;
-
-  // After VAT on commission
   netAfterVat: number;
   netAfterVatThaiPlus: number;
-
-  // Recommended selling price to hit target margin
   recommendedPrice: (targetMargin: number) => number;
-
-  // Status
   status: "healthy" | "warning" | "danger";
   statusThaiPlus: "healthy" | "warning" | "danger";
 }
 
 export function calculateGP(input: GPInput): GPResult {
-  const {
-    sellingPrice,
-    foodCost,
-    packagingCost,
-    otherCost,
-    restaurantDiscount,
-    deliverySubsidy,
-  } = input;
-
+  const { sellingPrice, foodCost, packagingCost, otherCost, restaurantDiscount, deliverySubsidy } = input;
   const effectivePrice = sellingPrice - restaurantDiscount;
   const totalVariableCost = foodCost + packagingCost + otherCost + deliverySubsidy;
 
-  // Normal commission (30%)
-  const commissionNormal = effectivePrice * GRAB_NORMAL_COMMISSION;
+  const commissionNormal = sellingPrice * GRAB_NORMAL_COMMISSION;
   const vatOnCommissionNormal = commissionNormal * GRAB_VAT_ON_GP;
   const netRevenueNormal = effectivePrice - commissionNormal - vatOnCommissionNormal;
   const grossProfitNormal = netRevenueNormal - totalVariableCost;
-  const gpMarginNormal = sellingPrice > 0 ? (grossProfitNormal / sellingPrice) * 100 : 0;
+  const gpMarginNormal = effectivePrice > 0 ? (grossProfitNormal / effectivePrice) * 100 : 0;
 
-  // LINE MAN special program commission (23%)
-  const commissionThaiPlus = effectivePrice * GRAB_THAI_PLUS_COMMISSION;
+  const commissionThaiPlus = sellingPrice * GRAB_THAI_PLUS_COMMISSION;
   const vatOnCommissionThaiPlus = commissionThaiPlus * GRAB_VAT_ON_GP;
   const netRevenueThaiPlus = effectivePrice - commissionThaiPlus - vatOnCommissionThaiPlus;
   const grossProfitThaiPlus = netRevenueThaiPlus - totalVariableCost;
-  const gpMarginThaiPlus = sellingPrice > 0 ? (grossProfitThaiPlus / sellingPrice) * 100 : 0;
+  const gpMarginThaiPlus = effectivePrice > 0 ? (grossProfitThaiPlus / effectivePrice) * 100 : 0;
 
   const getStatus = (margin: number): "healthy" | "warning" | "danger" => {
     if (margin >= 30) return "healthy";
@@ -103,9 +188,6 @@ export function calculateGP(input: GPInput): GPResult {
   };
 
   const recommendedPrice = (targetMargin: number): number => {
-    // Solve: (price * (1 - commission * 1.07) - totalVariableCost) / price = targetMargin/100
-    // price * (1 - commission * 1.07) - totalVariableCost = price * targetMargin/100
-    // price * (1 - commission * 1.07 - targetMargin/100) = totalVariableCost
     const commissionRate = GRAB_THAI_PLUS_COMMISSION * (1 + GRAB_VAT_ON_GP);
     const denominator = 1 - commissionRate - targetMargin / 100;
     if (denominator <= 0) return 0;
@@ -162,24 +244,17 @@ export function simulatePromotion(
   commissionRate: number = GRAB_THAI_PLUS_COMMISSION
 ) {
   const effectivePrice = sellingPrice - discountAmount;
-  const commission = effectivePrice * commissionRate * (1 + GRAB_VAT_ON_GP);
+  // GP คำนวณจากราคาก่อนส่วนลด
+  const commission = sellingPrice * commissionRate * (1 + GRAB_VAT_ON_GP);
   const netRevenue = effectivePrice - commission;
   const grossProfit = netRevenue - totalVariableCost - deliverySubsidy;
-  const gpMargin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
+  const gpMargin = effectivePrice > 0 ? (grossProfit / effectivePrice) * 100 : 0;
 
-  // Max discount before loss
   const maxDiscount = (() => {
-    // netRevenue(price - d) - totalVariableCost - deliverySubsidy = 0
-    // (price - d) * (1 - commission * 1.07) = totalVariableCost + deliverySubsidy
     const factor = 1 - commissionRate * (1 + GRAB_VAT_ON_GP);
     const minEffectivePrice = (totalVariableCost + deliverySubsidy) / factor;
     return Math.max(0, sellingPrice - minEffectivePrice);
   })();
 
-  return {
-    grossProfit,
-    gpMargin,
-    maxDiscount,
-    isLoss: grossProfit < 0,
-  };
+  return { grossProfit, gpMargin, maxDiscount, isLoss: grossProfit < 0 };
 }

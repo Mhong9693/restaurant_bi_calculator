@@ -142,9 +142,13 @@ export const appRouter = router({
         return {
           ...s,
           normalAvgPrice: Number(s.normalAvgPrice),
-          normalCommission: Number(s.normalCommission),
+          normalGpPercent: Number(s.normalGpPercent),
+          normalVatOnGp: Number(s.normalVatOnGp),
+          normalTotalCost: Number(s.normalTotalCost),
           plusAvgPrice: Number(s.plusAvgPrice),
-          plusCommission: Number(s.plusCommission),
+          plusGpPercent: Number(s.plusGpPercent),
+          plusVatOnGp: Number(s.plusVatOnGp),
+          plusTotalCost: Number(s.plusTotalCost),
         };
       }),
 
@@ -152,17 +156,25 @@ export const appRouter = router({
       .input(z.object({
         sessionId: z.string().min(1),
         normalAvgPrice: z.number().min(0),
-        normalCommission: z.number().min(0).max(100),
+        normalGpPercent: z.number().min(0).max(100),
+        normalVatOnGp: z.number().min(0).max(100),
+        normalTotalCost: z.number().min(0),
         plusAvgPrice: z.number().min(0),
-        plusCommission: z.number().min(0).max(100),
+        plusGpPercent: z.number().min(0).max(100),
+        plusVatOnGp: z.number().min(0).max(100),
+        plusTotalCost: z.number().min(0),
       }))
       .mutation(async ({ input }) => {
         await upsertGpSettings({
           sessionId: input.sessionId,
           normalAvgPrice: String(input.normalAvgPrice),
-          normalCommission: String(input.normalCommission),
+          normalGpPercent: String(input.normalGpPercent),
+          normalVatOnGp: String(input.normalVatOnGp),
+          normalTotalCost: String(input.normalTotalCost),
           plusAvgPrice: String(input.plusAvgPrice),
-          plusCommission: String(input.plusCommission),
+          plusGpPercent: String(input.plusGpPercent),
+          plusVatOnGp: String(input.plusVatOnGp),
+          plusTotalCost: String(input.plusTotalCost),
         });
         return { success: true };
       }),

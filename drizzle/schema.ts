@@ -44,19 +44,22 @@ export const menuItems = mysqlTable("menuItems", {
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertMenuItem = typeof menuItems.$inferInsert;
 
-// GP Settings per session — stores avg order price + Commission% for both channels
-// normalCommission = Commission% ที่ LINE MAN หักจากยอดขาย (เช่น 30)
-// plusCommission   = Commission% สำหรับโปรแกรมพิเศษ (เช่น 23)
-// GP% สุทธิที่ร้านได้รับ = (1 - commission% × 1.07) × 100
+// GP Settings per session
+// GP% = ค่า Commission ที่แพลตฟอร์มหักจากร้านค้า คำนวณจากราคาก่อนส่วนลด
+// รายรับสุทธิ = ราคาหลังส่วนลด - (GP% × ราคาก่อนส่วนลด) × (1 + VAT%)
 export const gpSettings = mysqlTable("gpSettings", {
   id: int("id").autoincrement().primaryKey(),
   sessionId: varchar("sessionId", { length: 128 }).notNull().unique(),
   // Normal channel
   normalAvgPrice: decimal("normalAvgPrice", { precision: 10, scale: 2 }).notNull().default("0"),
-  normalCommission: decimal("normalCommission", { precision: 5, scale: 2 }).notNull().default("30"),
+  normalGpPercent: decimal("normalGpPercent", { precision: 5, scale: 2 }).notNull().default("30"),
+  normalVatOnGp: decimal("normalVatOnGp", { precision: 5, scale: 2 }).notNull().default("7"),
+  normalTotalCost: decimal("normalTotalCost", { precision: 10, scale: 2 }).notNull().default("0"),
   // LINE MAN Plus channel
   plusAvgPrice: decimal("plusAvgPrice", { precision: 10, scale: 2 }).notNull().default("0"),
-  plusCommission: decimal("plusCommission", { precision: 5, scale: 2 }).notNull().default("23"),
+  plusGpPercent: decimal("plusGpPercent", { precision: 5, scale: 2 }).notNull().default("23"),
+  plusVatOnGp: decimal("plusVatOnGp", { precision: 5, scale: 2 }).notNull().default("7"),
+  plusTotalCost: decimal("plusTotalCost", { precision: 10, scale: 2 }).notNull().default("0"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
