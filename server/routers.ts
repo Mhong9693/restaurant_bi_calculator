@@ -88,9 +88,10 @@ export const appRouter = router({
         return { hasAccess: !!lead, lead: lead ?? null };
       }),
 
-    list: publicProcedure.query(async () => {
-      return getAllLeads();
-    }),
+    list: publicProcedure.query(async ({ ctx }) => {
+  if (!ctx.user || ctx.user.role !== "admin") return [];
+  return getAllLeads();
+}),
   }),
 
   menuItems: router({
