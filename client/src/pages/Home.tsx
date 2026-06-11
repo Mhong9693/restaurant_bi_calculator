@@ -97,7 +97,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="/manus-storage/wongnai-logo_ef3cc632.webp"
+              src="/Wongnai Logo_update 2026 (1).png"
               alt="Wongnai"
               className="h-8 w-auto object-contain"
             />
