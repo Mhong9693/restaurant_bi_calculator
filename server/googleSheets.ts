@@ -1,13 +1,7 @@
-/**
- * Google Sheets integration via GWS service account proxy
- * Appends new lead rows to the designated spreadsheet in real-time.
- */
+import { google } from "googleapis";
 
-const SPREADSHEET_ID = "1REwJa64uh0fCMJx5KtHTuvDVYeSYZTKsI6liR3zdaes";
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID ?? "1REwJa64uh0fCMJx5KtHTuvDVYeSYZTKsI6liR3zdaes";
 const SHEET_NAME = "Leads";
-
-// GWS proxy base URL — uses the same auth token as the gws CLI
-const GWS_API_BASE = "https://sheets.googleapis.com/v4/spreadsheets";
 
 interface LeadRow {
   storeName: string;
@@ -18,12 +12,22 @@ interface LeadRow {
   interestedWongnaiPos?: boolean;
 }
 
-/**
- * Append a new lead row to the Google Sheet.
- * Uses the built-in GWS credential proxy so no extra API key is needed.
- */
 export async function appendLeadToSheet(lead: LeadRow): Promise<void> {
   try {
+    const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (!credentialsJson) {
+      console.warn("[GoogleSheets] GOOGLE_SERVICE_ACCOUNT_JSON not set — skipping sheet sync");
+      return;
+    }
+
+    const credentials = JSON.parse(credentialsJson);
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
+
+    const sheets = google.sheets({ version: "v4", auth });
+
     const now = new Date().toLocaleString("th-TH", {
       timeZone: "Asia/Bangkok",
       year: "numeric",
@@ -44,34 +48,17 @@ export async function appendLeadToSheet(lead: LeadRow): Promise<void> {
       lead.interestedWongnaiPos ? "✅ สนใจ" : "❌ ไม่สนใจ",
     ];
 
-    // Use gws CLI via child_process to append the row
-    const { execFile } = await import("child_process");
-    const { promisify } = await import("util");
-    const execFileAsync = promisify(execFile);
-
-    const body = JSON.stringify({
-      values: [row],
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEET_NAME}!A:G`,
+      valueInputOption: "USER_ENTERED",
+      insertDataOption: "INSERT_ROWS",
+      requestBody: { values: [row] },
     });
-
-    await execFileAsync("gws", [
-      "sheets",
-      "spreadsheets",
-      "values",
-      "append",
-      "--params",
-      JSON.stringify({
-        spreadsheetId: SPREADSHEET_ID,
-        range: `${SHEET_NAME}!A:G`,
-        valueInputOption: "USER_ENTERED",
-        insertDataOption: "INSERT_ROWS",
-      }),
-      "--json",
-      body,
-    ]);
 
     console.log(`[GoogleSheets] Lead appended: ${lead.storeName} (${lead.phone})`);
   } catch (error) {
-    // Non-fatal: log and continue — lead is already saved to DB
+    // Non-fatal: lead is already saved to DB
     console.error("[GoogleSheets] Failed to append lead to sheet:", error);
   }
 }
