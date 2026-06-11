@@ -195,7 +195,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
       >
         <div className="flex items-center gap-4 px-5 py-4">
           <img
-            src="/manus-storage/thai-chuay-thai-plus-logo_7c644d49.webp"
+            src="/thai-chuay-thai-plus-logo.png.png"
             alt="ไทยช่วยไทยพลัส LINE MAN"
             className="h-20 w-auto object-contain flex-shrink-0 drop-shadow-lg"
           />
