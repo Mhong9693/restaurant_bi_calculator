@@ -201,33 +201,26 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
           />
           <div className="flex-1 min-w-0">
             <p className="text-white font-bold text-base leading-tight">
-              ยังไม่ได้สมัครโปรแกรม?
+              ยังไม่ได้เข้าร่วม
             </p>
             <p
               className="text-[#00E64D] font-black text-xl leading-tight tracking-tight"
               style={{ fontFamily: "'LINE Seed Sans TH', sans-serif", fontWeight: 900 }}
             >
-              ไทยช่วยไทยพลัส
+              ไทยช่วยไทย พลัส?
             </p>
             <p className="text-blue-200 text-xs mt-1">
-              ลด GP เหลือ 23% · เพิ่มกำไรต่อออเดอร์ทันที
+              ดูวิธีสมัครเลย
             </p>
           </div>
           <div className="flex-shrink-0 flex items-center gap-1.5 bg-[#0EC963] text-white text-sm font-bold px-4 py-2 rounded-xl group-hover:bg-[#0aaa54] transition-colors">
-            สมัครเลย
+            ดูวิธีสมัคร
             <ExternalLink className="w-3.5 h-3.5" />
           </div>
         </div>
       </a>
 
-      {/* ── Formula note ── */}
-      <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-xs text-blue-700 space-y-1">
-        <p className="font-semibold">📐 สูตรคำนวณ</p>
-        <p>ค่า GP = ราคาขาย (ก่อนส่วนลด) × GP%</p>
-        <p>รายรับสุทธิ = ราคาขาย − ค่า GP − VAT บน GP</p>
-        <p>กำไรต่อออเดอร์ = รายรับสุทธิ − ต้นทุนรวม</p>
-        <p>Margin% = กำไรต่อออเดอร์ ÷ ราคาขาย × 100</p>
-      </div>
+
 
       {/* ── Input Cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
