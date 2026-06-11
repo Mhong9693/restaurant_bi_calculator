@@ -99,7 +99,7 @@ export default function Home() {
             <img
               src="/Wongnai Logo_update 2026 (1).png"
               alt="Wongnai"
-              className="h-8 w-auto object-contain"
+              className="h-12 w-auto object-contain"
             />
             <div className="hidden sm:block w-px h-6 bg-gray-200" />
             <div className="hidden sm:block">
@@ -125,7 +125,7 @@ export default function Home() {
       </header>
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-[#FF671F] to-[#F7931E] text-white">
+      <div className="bg-gradient-to-r from-[#EB4700] to-[#FF671F] text-white">
         <div className="max-w-5xl mx-auto px-4 py-8 sm:py-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div className="flex-1">
@@ -252,7 +252,7 @@ export default function Home() {
 
         {/* Locked Feature CTA */}
         {!hasAccess && (
-          <div className="mt-10 rounded-2xl bg-gradient-to-r from-[#FF671F] to-[#F7931E] p-6 sm:p-8 text-white relative overflow-hidden">
+          <div className="mt-10 rounded-2xl bg-gradient-to-r from-[#EB4700] to-[#FF671F] p-6 sm:p-8 text-white relative overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white -translate-y-1/2 translate-x-1/4" />
             </div>
