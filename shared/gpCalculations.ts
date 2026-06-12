@@ -13,14 +13,14 @@
 // Default constants
 // -------------------------------------------------------
 export const DEFAULT_NORMAL_GP_PERCENT = 30;   // GP% แพลตฟอร์มปกติ
-export const DEFAULT_PLUS_GP_PERCENT = 23;     // GP% ไทยช่วยไทยพลัส
+export const DEFAULT_PLUS_GP_PERCENT = 15;     // GP% ไทยช่วยไทยพลัส (60/40)
 export const DEFAULT_VAT_ON_GP = 7;            // VAT บน GP (%)
 export const DEFAULT_TARGET_MARGIN = 15;       // เป้า Margin หลัง GP (%)
 export const DEFAULT_PRICE_STEP = 5;           // ปัดราคาขึ้นทีละ (บาท)
 
 // Legacy constants (kept for backward compat with menu analysis)
 export const GRAB_NORMAL_COMMISSION = 0.30;
-export const GRAB_THAI_PLUS_COMMISSION = 0.23;
+export const GRAB_THAI_PLUS_COMMISSION = 0.15;
 export const GRAB_VAT_ON_GP = 0.07;
 export const GRAB_DELIVERY_SUBSIDY_DEFAULT = 0;
 export const VAT_ON_COMMISSION = 1.07;
@@ -42,6 +42,8 @@ export interface GPOrderInput {
   deliverySubsidy?: number;
   /** ต้นทุนรวมต่อออเดอร์ = Food Cost + บรรจุภัณฑ์ + อื่นๆ (บาท) */
   totalCostPerOrder: number;
+  /** ร้านจดทะเบียน VAT หรือไม่ — ถ้าจด ราคาขายถือว่ารวม VAT 7% ที่ต้องนำส่ง และ VAT บน GP ขอคืนได้ */
+  vatRegistered?: boolean;
 }
 
 export interface GPOrderResult {
@@ -71,6 +73,7 @@ export function calcGPOrder(input: GPOrderInput): GPOrderResult {
     restaurantDiscount = 0,
     deliverySubsidy = 0,
     totalCostPerOrder,
+    vatRegistered = false,
   } = input;
 
   const priceAfterDiscount = sellingPrice - restaurantDiscount;
@@ -80,8 +83,13 @@ export function calcGPOrder(input: GPOrderInput): GPOrderResult {
   const vatOnGpAmount = gpAmount * (vatOnGpPercent / 100);
   const gpPlusVat = gpAmount + vatOnGpAmount;
 
-  // รายรับสุทธิ = ราคาหลังส่วนลด − GP − VAT บน GP − ค่าส่งที่ร้านช่วยออก
-  const netRevenue = priceAfterDiscount - gpPlusVat - deliverySubsidy;
+  // ร้านจด VAT: ราคาขายรวม VAT ขาย 7% ที่ต้องนำส่งสรรพากร → ฐานรายรับจริง = ราคา ÷ 1.07
+  // และ VAT บน GP เป็นภาษีซื้อที่ขอคืนได้ จึงไม่นับเป็นต้นทุน
+  const revenueBase = vatRegistered ? priceAfterDiscount / 1.07 : priceAfterDiscount;
+  const gpCost = vatRegistered ? gpAmount : gpPlusVat;
+
+  // รายรับสุทธิ = ฐานรายรับ − ค่า GP (รวม/ไม่รวม VAT ตามสถานะจดทะเบียน) − ค่าส่งที่ร้านช่วยออก
+  const netRevenue = revenueBase - gpCost - deliverySubsidy;
 
   const profitPerOrder = netRevenue - totalCostPerOrder;
 
