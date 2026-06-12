@@ -44,7 +44,7 @@ export interface GPSettings {
 
   /** ราคาขายเฉลี่ยต่อออเดอร์ไทยช่วยไทยพลัส */
   plusAvgPrice: number;
-  /** GP% ไทยช่วยไทยพลัส เช่น 23 */
+  /** GP% ไทยช่วยไทยพลัส เช่น 15 หรือ 10 */
   plusGpPercent: number;
   /** VAT บน GP ไทยช่วยไทยพลัส */
   plusVatOnGp: number;
@@ -86,18 +86,20 @@ const STATUS_CONFIG = {
   danger:  { label: "ขาดทุน", className: "bg-red-100 text-red-700 border-red-200" },
 };
 
-function calcResults(s: GPSettings): GPResults {
+function calcResults(s: GPSettings, vatRegistered = false): GPResults {
   const normal = calcGPOrder({
     sellingPrice: s.normalAvgPrice,
     gpPercent: s.normalGpPercent,
     vatOnGpPercent: s.normalVatOnGp,
     totalCostPerOrder: s.normalTotalCost,
+    vatRegistered,
   });
   const plus = calcGPOrder({
     sellingPrice: s.plusAvgPrice,
     gpPercent: s.plusGpPercent,
     vatOnGpPercent: s.plusVatOnGp,
     totalCostPerOrder: s.plusTotalCost,
+    vatRegistered,
   });
   return {
     normalNetRevenue: normal.netRevenue,
@@ -134,6 +136,14 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
   const [inputs, setInputs] = useState<GPSettings>(DEFAULT_SETTINGS);
   const [isSaved, setIsSaved] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [vatRegistered, setVatRegistered] = useState<boolean>(() => {
+    return localStorage.getItem("gp_vat_registered") === "1";
+  });
+
+  const toggleVatRegistered = (checked: boolean) => {
+    setVatRegistered(checked);
+    localStorage.setItem("gp_vat_registered", checked ? "1" : "0");
+  };
 
   const { data: savedSettings } = trpc.gpSettings.get.useQuery(
     { sessionId },
@@ -157,7 +167,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
     }
   }, [savedSettings]);
 
-  const results = calcResults(inputs);
+  const results = calcResults(inputs, vatRegistered);
 
   const handleChange = useCallback((field: keyof GPSettings, value: string) => {
     const num = parseFloat(value) || 0;
@@ -168,7 +178,7 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
   useEffect(() => {
     onSettingsChange?.(inputs, results);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputs]);
+  }, [inputs, vatRegistered]);
 
   const handleSave = async () => {
     try {
@@ -221,6 +231,21 @@ export function GPCalculator({ sessionId, onSettingsChange }: GPCalculatorProps)
       </a>
 
 
+
+      {/* ── VAT registered toggle ── */}
+      <label className="flex items-start gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-3 cursor-pointer hover:border-[#FF671F]/40 transition-colors">
+        <input
+          type="checkbox"
+          checked={vatRegistered}
+          onChange={(e) => toggleVatRegistered(e.target.checked)}
+          className="mt-0.5 h-4 w-4 accent-[#FF671F]"
+        />
+        <span className="text-sm">
+          <span className="font-medium text-gray-700">ร้านของฉันจดทะเบียน VAT</span>
+          <InfoTooltip content={"ร้านที่จด VAT: ราคาขายถือว่ารวม VAT 7% ที่ต้องนำส่งสรรพากร ระบบจะหักออกจากรายรับให้\nส่วน VAT บน GP เป็นภาษีซื้อที่ขอคืนได้ จึงไม่นับเป็นต้นทุน\nร้านส่วนใหญ่ที่ไม่ได้จด VAT ไม่ต้องติ๊ก"} />
+          <span className="block text-xs text-gray-400 mt-0.5">ติ๊กเฉพาะร้านที่มีเลขผู้เสียภาษีและจด VAT แล้ว ตัวเลขกำไรจะหัก VAT ขาย 7% ให้อัตโนมัติ</span>
+        </span>
+      </label>
 
       {/* ── Input Cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -418,15 +443,38 @@ function ChannelCard({
         <div className="space-y-1">
           <Label className="text-xs font-medium flex items-center gap-1">
             GP% ของแพลตฟอร์ม
-            <InfoTooltip content={`GP% = ค่า Commission ที่แพลตฟอร์มหักจากร้าน\nเช่น LINE MAN ปกติ = 30%, ไทยช่วยไทยพลัส = 23%\nดูได้จาก LINE MAN Partner Portal`} />
+            <InfoTooltip content={`GP% = ค่า Commission ที่แพลตฟอร์มหักจากร้าน\nLINE MAN ปกติ = 30%\nไทยช่วยไทยพลัส (60/40) = 15% หรือสิทธิ์พิเศษ = 10%\nดูได้จาก LINE MAN Partner Portal`} />
           </Label>
+          {isPlus && (
+            <div className="grid grid-cols-2 gap-2 pb-1">
+              {[
+                { value: 15, label: "GP 15%", sub: "ไทยช่วยไทยพลัส" },
+                { value: 10, label: "GP 10%", sub: "สิทธิ์พิเศษ" },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange(`${fieldPrefix}GpPercent`, String(opt.value))}
+                  className={cn(
+                    "rounded-lg border px-2 py-1.5 text-center transition-colors",
+                    gpPercent === opt.value
+                      ? "border-[#003DA5] bg-[#003DA5] text-white"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-[#003DA5]/50"
+                  )}
+                >
+                  <span className="block text-sm font-bold leading-tight">{opt.label}</span>
+                  <span className={cn("block text-[10px] leading-tight", gpPercent === opt.value ? "text-blue-100" : "text-gray-400")}>{opt.sub}</span>
+                </button>
+              ))}
+            </div>
+          )}
           <div className="relative">
             <Input
               type="number" min="0" max="100" step="0.1"
               value={gpPercent || ""}
               onChange={(e) => onChange(`${fieldPrefix}GpPercent`, e.target.value)}
               className="pr-7 text-right font-mono"
-              placeholder={isPlus ? "23" : "30"}
+              placeholder={isPlus ? "15" : "30"}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
           </div>
