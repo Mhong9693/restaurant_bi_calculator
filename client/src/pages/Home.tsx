@@ -10,11 +10,12 @@ import { MonthlyOverviewSection } from "@/components/MonthlyOverviewSection";
 import { PromotionSimulator } from "@/components/PromotionSimulator";
 import { LeadGateModal } from "@/components/LeadGateModal";
 import { DailyLogSection } from "@/components/DailyLogSection";
+import { AdsCheckSection } from "@/components/AdsCheckSection";
 import { Lock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { nanoid } from "nanoid";
 
-const GATED_TABS = ["breakeven", "menu", "monthly", "promotion", "daily"];
+const GATED_TABS = ["breakeven", "menu", "monthly", "promotion", "daily", "ads"];
 
 const DEFAULT_SETTINGS: GPSettings = {
   normalAvgPrice: 150,
@@ -22,13 +23,13 @@ const DEFAULT_SETTINGS: GPSettings = {
   normalVatOnGp: 7,
   normalTotalCost: 0,
   plusAvgPrice: 150,
-  plusGpPercent: 23,
+  plusGpPercent: 15,
   plusVatOnGp: 7,
   plusTotalCost: 0,
 };
 
 // ปกติ GP 30% + VAT 7%: ราคา 150 → GP=45, VAT=3.15 → รายรับ=101.85
-// พลัส GP 23% + VAT 7%: ราคา 150 → GP=34.5, VAT=2.415 → รายรับ=113.085
+// พลัส GP 15% + VAT 7%: ราคา 150 → GP=22.5, VAT=1.575 → รายรับ=125.925
 const DEFAULT_RESULTS: GPResults = {
   normalNetRevenue: 101.85,
   normalProfitPerOrder: 101.85,
@@ -36,14 +37,14 @@ const DEFAULT_RESULTS: GPResults = {
   normalGpAmount: 45,
   normalVatAmount: 3.15,
   normalStatus: "warning",
-  plusNetRevenue: 113.085,
-  plusProfitPerOrder: 113.085,
-  plusMarginPercent: 75.39,
-  plusGpAmount: 34.5,
-  plusVatAmount: 2.415,
+  plusNetRevenue: 125.925,
+  plusProfitPerOrder: 125.925,
+  plusMarginPercent: 83.95,
+  plusGpAmount: 22.5,
+  plusVatAmount: 1.575,
   plusStatus: "healthy",
-  diffProfit: 11.235,
-  diffMargin: 7.49,
+  diffProfit: 24.075,
+  diffMargin: 16.05,
 };
 
 export default function Home() {
@@ -88,6 +89,7 @@ export default function Home() {
     { id: "breakeven", label: "จุดคุ้มทุน", icon: "🎯", gated: true },
     { id: "menu", label: "วิเคราะห์เมนู", icon: "🍽️", gated: true },
     { id: "promotion", label: "โปรโมชัน", icon: "🏷️", gated: true },
+    { id: "ads", label: "เช็คค่า Ads", icon: "📣", gated: true },
   ];
 
   return (
@@ -248,6 +250,13 @@ export default function Home() {
               />
             </div>
           </TabsContent>
+
+          {/* Ads Check Tab */}
+          <TabsContent value="ads" className="mt-0">
+            <div className="max-w-2xl mx-auto">
+              <AdsCheckSection />
+            </div>
+          </TabsContent>
         </Tabs>
 
         {/* Locked Feature CTA */}
@@ -266,7 +275,7 @@ export default function Home() {
                   ลงทะเบียนเพื่อใช้งาน: บันทึกรายวัน, ภาพรวมเดือน, จุดคุ้มทุน, วิเคราะห์เมนู และ Simulator โปรโมชัน
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {["📝 บันทึกรายวัน", "📅 ภาพรวมเดือน", "🎯 จุดคุ้มทุน", "🍽️ วิเคราะห์เมนู", "🏷️ โปรโมชัน"].map((f) => (
+                  {["📝 บันทึกรายวัน", "📅 ภาพรวมเดือน", "🎯 จุดคุ้มทุน", "🍽️ วิเคราะห์เมนู", "🏷️ โปรโมชัน", "📣 เช็คค่า Ads"].map((f) => (
                     <span key={f} className="text-xs bg-white/20 px-2.5 py-1 rounded-full">{f}</span>
                   ))}
                 </div>
@@ -283,7 +292,7 @@ export default function Home() {
         )}
 
         {/* Feature Cards */}
-        <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {[
             { icon: "🧮", title: "ตั้งค่า GP", desc: "ปกติ vs พลัส", id: "calculator" },
             { icon: "📊", title: "Dashboard", desc: "กราฟ Bar & Donut", id: "dashboard" },
@@ -292,6 +301,7 @@ export default function Home() {
             { icon: "🎯", title: "จุดคุ้มทุน", desc: "ออเดอร์ต่อวัน", id: "breakeven", gated: true },
             { icon: "🍽️", title: "วิเคราะห์เมนู", desc: "หาเมนูดาวเด่น", id: "menu", gated: true },
             { icon: "🏷️", title: "โปรโมชัน", desc: "ส่วนลดสูงสุด", id: "promotion", gated: true },
+            { icon: "📣", title: "เช็คค่า Ads", desc: "ROAS คุ้มไหม", id: "ads", gated: true },
           ].map(({ icon, title, desc, id, gated }) => (
             <div
               key={id}
