@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   calcGPOrder,
   calcRecommendedPrice,
@@ -408,6 +408,9 @@ function ChannelCard({
     danger:  { label: "ขาดทุน/ต่ำ", className: "bg-red-100 text-red-700 border border-red-200" },
   };
 
+  const customInputRef = useRef<HTMLInputElement>(null);
+  const isCustomGp = isPlus && gpPercent !== 15 && gpPercent !== 10;
+
   return (
     <Card className={cn("border-2", isGreen ? "border-[#003DA5]" : "border-gray-200")}>
       <CardHeader className="pb-3">
@@ -446,7 +449,7 @@ function ChannelCard({
             <InfoTooltip content={`GP% = ค่า Commission ที่แพลตฟอร์มหักจากร้าน\nLINE MAN ปกติ = 30%\nไทยช่วยไทยพลัส (60/40) = 15% หรือสิทธิ์พิเศษ = 10%\nดูได้จาก LINE MAN Partner Portal`} />
           </Label>
           {isPlus && (
-            <div className="grid grid-cols-2 gap-2 pb-1">
+            <div className="grid grid-cols-3 gap-2 pb-1">
               {[
                 { value: 15, label: "GP 15%", sub: "ไทยช่วยไทยพลัส" },
                 { value: 10, label: "GP 10%", sub: "สิทธิ์พิเศษ" },
@@ -466,15 +469,35 @@ function ChannelCard({
                   <span className={cn("block text-[10px] leading-tight", gpPercent === opt.value ? "text-blue-100" : "text-gray-400")}>{opt.sub}</span>
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(`${fieldPrefix}GpPercent`, "");
+                  requestAnimationFrame(() => {
+                    customInputRef.current?.focus();
+                    customInputRef.current?.select();
+                  });
+                }}
+                className={cn(
+                  "rounded-lg border px-2 py-1.5 text-center transition-colors",
+                  isCustomGp
+                    ? "border-[#003DA5] bg-[#003DA5] text-white"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-[#003DA5]/50"
+                )}
+              >
+                <span className="block text-sm font-bold leading-tight">กรอกเอง</span>
+                <span className={cn("block text-[10px] leading-tight", isCustomGp ? "text-blue-100" : "text-gray-400")}>ระบุ GP%</span>
+              </button>
             </div>
           )}
           <div className="relative">
             <Input
+              ref={isPlus ? customInputRef : undefined}
               type="number" min="0" max="100" step="0.1"
               value={gpPercent || ""}
               onChange={(e) => onChange(`${fieldPrefix}GpPercent`, e.target.value)}
               className="pr-7 text-right font-mono"
-              placeholder={isPlus ? "15" : "30"}
+              placeholder={isPlus ? (isCustomGp ? "ระบุ GP% เอง" : "15") : "30"}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
           </div>
